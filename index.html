@@ -1,468 +1,806 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sv">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dagens Lunch — Lund</title>
-<link rel="icon" type="image/svg+xml" href="/favicon.svg?">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #faf6ee;
-    --card: #ffffff;
-    --ink: #2b2a28;
-    --muted: #8a8378;
-    --line: #e8e1d3;
-    --accent: #e15a3c;
-    --sage: #5b7b5d;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Inter', system-ui, sans-serif;
-    -webkit-tap-highlight-color: transparent;
-  }
-  header {
-    position: sticky;
-    top: 0;
-    background: var(--bg);
-    padding: 20px 20px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    border-bottom: 1px solid var(--line);
-    z-index: 10;
-  }
-  header h1 {
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
-    font-size: 26px;
-    margin: 0;
-    line-height: 1;
-  }
-  header .date {
-    color: var(--muted);
-    font-size: 13px;
-    margin-top: 4px;
-    text-transform: capitalize;
-  }
-  #refresh {
-    border: none;
-    background: var(--ink);
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    font-size: 18px;
-    cursor: pointer;
-  }
-  #refresh:active { transform: scale(0.94); }
-  main {
-    max-width: 560px;
-    margin: 0 auto;
-    padding: 16px 16px 60px;
-  }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 18px 20px;
-    margin-bottom: 16px;
-  }
-  .card h2 {
-    font-family: 'Fraunces', serif;
-    font-size: 19px;
-    margin: 0 0 2px;
-  }
-  .card .src {
-    font-size: 12px;
-    color: var(--muted);
-    text-decoration: none;
-  }
-  .today-block { margin-top: 14px; }
-  .today-label {
-    display: inline-block;
-    background: var(--accent);
-    color: white;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 6px;
-    margin-bottom: 10px;
-  }
-  .status {
-    color: var(--muted);
-    font-size: 14px;
-    padding: 6px 0;
-  }
-  details {
-    margin-top: 14px;
-    border-top: 1px solid var(--line);
-    padding-top: 10px;
-  }
-  summary {
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--sage);
-    font-weight: 600;
-  }
-  .day { margin-top: 14px; }
-  .day + .day {
-    border-top: 1px solid var(--line);
-    padding-top: 14px;
-  }
-  .day h3 {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    color: var(--sage);
-    margin: 0 0 6px;
-  }
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Dagens Lunch — Lund</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #faf6ee;
+        --card: #ffffff;
+        --ink: #2b2a28;
+        --muted: #8a8378;
+        --line: #e8e1d3;
+        --accent: #e15a3c;
+        --sage: #5b7b5d;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Inter", system-ui, sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        padding: 20px 20px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 1px solid var(--line);
+        z-index: 10;
+      }
+      header h1 {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 26px;
+        margin: 0;
+        line-height: 1;
+      }
+      header .date {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 4px;
+        text-transform: capitalize;
+      }
+      #refresh {
+        border: none;
+        background: var(--ink);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 18px;
+        cursor: pointer;
+      }
+      #refresh:active {
+        transform: scale(0.94);
+      }
+      main {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 16px 16px 60px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px 20px;
+        margin-bottom: 16px;
+      }
+      .card h2 {
+        font-family: "Fraunces", serif;
+        font-size: 19px;
+        margin: 0 0 2px;
+      }
+      .card .src {
+        font-size: 12px;
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .today-block {
+        margin-top: 14px;
+      }
+      .today-label {
+        display: inline-block;
+        background: var(--accent);
+        color: white;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+      }
+      .status {
+        color: var(--muted);
+        font-size: 14px;
+        padding: 6px 0;
+      }
+      details {
+        margin-top: 14px;
+        border-top: 1px solid var(--line);
+        padding-top: 10px;
+      }
+      summary {
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--sage);
+        font-weight: 600;
+      }
+      .day {
+        margin-top: 14px;
+      }
+      .day + .day {
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+      }
+      .day h3 {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--sage);
+        margin: 0 0 6px;
+      }
 
-  .dish { margin: 0 0 8px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--sage); border-radius: 6px; }
-  .dish:last-child { margin-bottom: 0; }
-  .dish-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    font-weight: 600;
-    font-size: 14.5px;
-  }
-  .dish-head .price {
-    font-weight: 500;
-    color: var(--sage);
-    font-size: 13px;
-    white-space: nowrap;
-    margin-left: 10px;
-  }
-  .dish-desc {
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--ink);
-    margin: 2px 0 0;
-  }
-  .dish-plain {
-    font-size: 14.5px;
-    line-height: 1.5;
-    margin: 0 0 8px;
-    padding: 10px 12px;
-    background: var(--bg);
-    border-left: 3px solid var(--sage);
-    border-radius: 6px;
-  }
-  .dish-plain:last-child { margin-bottom: 0; }
+      .dish {
+        margin: 0 0 8px;
+        padding: 10px 12px;
+        background: var(--bg);
+        border-left: 3px solid var(--sage);
+        border-radius: 6px;
+      }
+      .dish:last-child {
+        margin-bottom: 0;
+      }
+      .dish-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-weight: 600;
+        font-size: 14.5px;
+      }
+      .dish-head .price {
+        font-weight: 500;
+        color: var(--sage);
+        font-size: 13px;
+        white-space: nowrap;
+        margin-left: 10px;
+      }
+      .dish-desc {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--ink);
+        margin: 2px 0 0;
+      }
+      .dish-plain {
+        font-size: 14.5px;
+        line-height: 1.5;
+        margin: 0 0 8px;
+        padding: 10px 12px;
+        background: var(--bg);
+        border-left: 3px solid var(--sage);
+        border-radius: 6px;
+      }
+      .dish-plain:last-child {
+        margin-bottom: 0;
+      }
 
-  .error a { color: var(--accent); }
-</style>
-</head>
-<body>
+      .error a {
+        color: var(--accent);
+      }
 
-<header>
-  <div>
-    <h1>Dagens Lunch</h1>
-    <div class="date" id="today-date"></div>
-  </div>
-  <button id="refresh" aria-label="Uppdatera">&#8635;</button>
-</header>
+      /* --- Who's going where --- */
+      .vote-card {
+        max-width: 560px;
+        margin: 16px auto 0;
+        padding: 0 16px;
+      }
+      .vote-title {
+        font-family: "Fraunces", serif;
+        font-size: 17px;
+        margin: 0 0 8px;
+        display: block;
+      }
+      .name-input {
+        width: 100%;
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 15px;
+        padding: 10px 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--card);
+        color: var(--ink);
+      }
+      .name-input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      .vote-hint {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 8px 2px 0;
+      }
 
-<main id="cards"></main>
+      .card {
+        cursor: pointer;
+        border: 1px solid var(--line);
+        transition: border-color 0.15s ease;
+      }
+      .card.selected {
+        border-color: var(--accent);
+      }
+      .goers {
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--sage);
+        margin-top: 4px;
+        min-height: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>Dagens Lunch</h1>
+        <div class="date" id="today-date"></div>
+      </div>
+      <button id="refresh" aria-label="Uppdatera">&#8635;</button>
+    </header>
 
-<script>
-const DAYS = ['Måndag','Tisdag','Onsdag','Torsdag','Fredag'];
+    <section class="vote-card" id="vote-section">
+      <label class="vote-title" for="name-input">Vem är du?</label>
+      <input
+        type="text"
+        id="name-input"
+        class="name-input"
+        placeholder="Skriv ditt namn"
+        maxlength="30"
+        autocomplete="off"
+      />
+      <p class="vote-hint" id="vote-hint">
+        Klicka på en restaurang nedan för att visa att du går dit.
+      </p>
+    </section>
 
-const RESTAURANTS = [
-  { id: 'bricks', name: 'Bricks Eatery', page: 'https://brickseatery.se/lunch/', stop: 'ÖPPETTIDER', kind: 'html' },
-  { id: 'eatery', name: 'Eatery Lund', page: 'https://eatery.se/anlaggningar/lund', stop: 'GENERÖS SALLADSBUFFÉ', kind: 'pdf' },
-  { id: 'kantin', name: 'Kantin Lund', page: 'https://www.kantinlund.se/', stop: 'Hitta till', kind: 'html' },
-];
+    <main id="cards"></main>
 
-// Reader proxies convert a page into plain readable text, sidestepping both
-// CORS (the site itself won't let a browser fetch it directly) and, for the
-// PDF case, the need to parse a PDF client-side. We try them in order and
-// fall back to the next if one is down or rate-limited.
-const READERS = [
-  url => 'https://r.jina.ai/' + url,
-  url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-  url => 'https://corsproxy.io/?url=' + encodeURIComponent(url),
-];
+    <!-- Firebase, used only for the voting feature. No account/login involved —
+     each visitor just gets a random anonymous id stored in localStorage. -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-// The timeout has to cover reading the response body too, not just the
-// initial connection — a proxy can accept the request and then stall
-// mid-stream, and without this res.text() would hang indefinitely.
-async function fetchText(url, ms, headers) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), ms);
-  try {
-    const res = await fetch(url, { signal: controller.signal, headers });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return await res.text();
-  } finally {
-    clearTimeout(timer);
-  }
-}
+    <script>
+      const DAYS = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"];
 
-// Debug trail: each restaurant gets its own log array, printed to the
-// console and, on failure, shown right in the error card — so we can see
-// which fetch step broke without needing devtools on a phone.
-function log(logs, msg) {
-  logs.push(msg);
-  console.log(msg);
-}
+      const RESTAURANTS = [
+        {
+          id: "bricks",
+          name: "Bricks Eatery",
+          page: "https://brickseatery.se/lunch/",
+          stop: "ÖPPETTIDER",
+          kind: "html",
+        },
+        {
+          id: "eatery",
+          name: "Eatery Lund",
+          page: "https://eatery.se/anlaggningar/lund",
+          stop: "GENERÖS SALLADSBUFFÉ",
+          kind: "pdf",
+        },
+        {
+          id: "kantin",
+          name: "Kantin Lund",
+          page: "https://www.kantinlund.se/",
+          stop: "Hitta till",
+          kind: "html",
+        },
+      ];
 
-function escapeRegExp(s) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+      // Reader proxies convert a page into plain readable text, sidestepping both
+      // CORS (the site itself won't let a browser fetch it directly) and, for the
+      // PDF case, the need to parse a PDF client-side. We try them in order and
+      // fall back to the next if one is down or rate-limited.
+      const READERS = [
+        (url) => "https://r.jina.ai/" + url,
+        (url) =>
+          "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+        (url) => "https://corsproxy.io/?url=" + encodeURIComponent(url),
+      ];
 
-// Case-insensitive "last index of", so a stop word that also happens to
-// appear earlier in the document (e.g. a banner repeated in a header and
-// footer) still cuts off only the trailing repeat.
-function lastIndexCI(text, needle) {
-  const re = new RegExp(escapeRegExp(needle), 'gi');
-  let m, last = -1;
-  while ((m = re.exec(text))) last = m.index;
-  return last;
-}
+      // The timeout has to cover reading the response body too, not just the
+      // initial connection — a proxy can accept the request and then stall
+      // mid-stream, and without this res.text() would hang indefinitely.
+      //
+      // NOTE: this intentionally does NOT use AbortController/AbortSignal. Some
+      // browser setups (extensions or sandboxed embeds that patch window.fetch
+      // and relay it via postMessage) throw "AbortSignal object could not be
+      // cloned" the moment a signal is passed in, because AbortSignal isn't
+      // structured-cloneable. Promise.race gives us the same "give up after N ms"
+      // behavior for our purposes, at the cost of not actually cancelling the
+      // underlying request (it keeps running in the background, we just stop
+      // waiting on it) — fine for small text fetches like these.
+      async function fetchText(url, ms, headers) {
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("timeout after " + ms + "ms")), ms),
+        );
+        const res = await Promise.race([fetch(url, { headers }), timeout]);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return await res.text();
+      }
 
-// jinaOnly is used for PDFs: only r.jina.ai extracts PDF text for us, the
-// other proxies would just hand back raw PDF bytes we can't read as text.
-// PDF conversion is slower than a plain page fetch, so it gets a longer timeout.
-async function fetchReadable(url, jinaOnly = false, logs = []) {
-  const readers = jinaOnly ? [READERS[0]] : READERS;
-  const timeout = jinaOnly ? 30000 : 15000;
-  for (const build of readers) {
-    const readerUrl = build(url);
-    try {
-      const text = await fetchText(readerUrl, timeout);
-      log(logs, `fetch ${readerUrl} -> ${text.length} chars`);
-      if (text.length > 80) return text;
-    } catch (e) {
-      log(logs, `fetch ${readerUrl} -> ${e.message}`);
-    }
-  }
-  throw new Error('could not fetch ' + url);
-}
+      // Debug trail: each restaurant gets its own log array, printed to the
+      // console and, on failure, shown right in the error card — so we can see
+      // which fetch step broke without needing devtools on a phone.
+      function log(logs, msg) {
+        logs.push(msg);
+        console.log(msg);
+      }
 
-// The menu pages just list "Måndag ... Tisdag ... Fredag" as plain text with
-// no machine-readable structure, so we find each day name and take everything
-// up to the next one (or a stop word marking the end of the menu section).
-function splitByDays(text, stopWord) {
-  const hits = DAYS
-    .map(day => {
-      const re = new RegExp(day, 'i');
-      const m = re.exec(text);
-      return m ? { day, pos: m.index } : null;
-    })
-    .filter(Boolean)
-    .sort((a, b) => a.pos - b.pos);
+      function escapeRegExp(s) {
+        return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      }
 
-  if (hits.length === 0) return {};
+      // Case-insensitive "last index of", so a stop word that also happens to
+      // appear earlier in the document (e.g. a banner repeated in a header and
+      // footer) still cuts off only the trailing repeat.
+      function lastIndexCI(text, needle) {
+        const re = new RegExp(escapeRegExp(needle), "gi");
+        let m,
+          last = -1;
+        while ((m = re.exec(text))) last = m.index;
+        return last;
+      }
 
-  // Only trim trailing content if the stop word actually falls after the
-  // last day heading — otherwise a banner that also appears near the top
-  // (header/footer repeats) could cut the whole menu off before it starts.
-  let end = text.length;
-  if (stopWord) {
-    const cut = lastIndexCI(text, stopWord);
-    if (cut > hits[hits.length - 1].pos) end = cut;
-  }
+      // jinaOnly is used for PDFs: only r.jina.ai extracts PDF text for us, the
+      // other proxies would just hand back raw PDF bytes we can't read as text.
+      // PDF conversion is slower than a plain page fetch, so it gets a longer timeout.
+      async function fetchReadable(url, jinaOnly = false, logs = []) {
+        const readers = jinaOnly ? [READERS[0]] : READERS;
+        const timeout = jinaOnly ? 30000 : 15000;
+        for (const build of readers) {
+          const readerUrl = build(url);
+          try {
+            const text = await fetchText(readerUrl, timeout);
+            log(logs, `fetch ${readerUrl} -> ${text.length} chars`);
+            if (text.length > 80) return text;
+          } catch (e) {
+            log(logs, `fetch ${readerUrl} -> ${e.message}`);
+          }
+        }
+        throw new Error("could not fetch " + url);
+      }
 
-  const result = {};
-  hits.forEach((h, i) => {
-    const segEnd = i + 1 < hits.length ? hits[i + 1].pos : end;
-    let block = text.slice(h.pos + h.day.length, segEnd).trim();
-    block = block.replace(/^[\s:–-]*\d{1,2}\/\d{1,2}\s*/, ''); // e.g. "17/8" after "Måndag"
-    result[h.day] = block;
-  });
-  return result;
-}
+      // The menu pages just list "Måndag ... Tisdag ... Fredag" as plain text with
+      // no machine-readable structure, so we find each day name and take everything
+      // up to the next one (or a stop word marking the end of the menu section).
+      function splitByDays(text, stopWord) {
+        const hits = DAYS.map((day) => {
+          const re = new RegExp(day, "i");
+          const m = re.exec(text);
+          return m ? { day, pos: m.index } : null;
+        })
+          .filter(Boolean)
+          .sort((a, b) => a.pos - b.pos);
 
-// Bricks Eatery lists several dishes per day, each starting with a category
-// name directly followed by a price like "115:-" — split the block there.
-// Eatery Lund's PDF has no per-item prices, just one dish per line. PDF
-// text extraction usually keeps those line breaks, but not always — when
-// it doesn't, everything collapses into one paragraph. As a fallback we
-// split on Swedish sentence case: each dish starts with exactly one
-// capitalized word followed by lowercase words, so a capitalized word
-// appearing right after another word's lowercase ending marks a new dish.
-function splitDishes(text) {
-  const clean = s => s.replace(/[#*_>]/g, '').replace(/\s+/g, ' ').trim();
+        if (hits.length === 0) return {};
 
-  const byPrice = text.split(/(?=[A-ZÅÄÖ][\wåäöÅÄÖ /-]{1,24}\s\d{2,3}:-)/).map(clean).filter(Boolean);
-  if (byPrice.length > 1) return byPrice;
+        // Only trim trailing content if the stop word actually falls after the
+        // last day heading — otherwise a banner that also appears near the top
+        // (header/footer repeats) could cut the whole menu off before it starts.
+        let end = text.length;
+        if (stopWord) {
+          const cut = lastIndexCI(text, stopWord);
+          if (cut > hits[hits.length - 1].pos) end = cut;
+        }
 
-  const byLine = text.split(/\n+/).map(clean).filter(Boolean);
-  if (byLine.length > 1) return byLine;
+        const result = {};
+        hits.forEach((h, i) => {
+          const segEnd = i + 1 < hits.length ? hits[i + 1].pos : end;
+          let block = text.slice(h.pos + h.day.length, segEnd).trim();
+          block = block.replace(/^[\s:–-]*\d{1,2}\/\d{1,2}\s*/, ""); // e.g. "17/8" after "Måndag"
+          result[h.day] = block;
+        });
+        return result;
+      }
 
-  return byLine[0]
-    .split(/(?<=[a-zåäö])\s+(?=[A-ZÅÄÖ][a-zåäö]+(?:\s|$))/)
-    .map(clean)
-    .filter(Boolean);
-}
+      // Bricks Eatery lists several dishes per day, each starting with a category
+      // name directly followed by a price like "115:-" — split the block there.
+      // Eatery Lund's PDF has no per-item prices, just one dish per line. PDF
+      // text extraction usually keeps those line breaks, but not always — when
+      // it doesn't, everything collapses into one paragraph. As a fallback we
+      // split on Swedish sentence case: each dish starts with exactly one
+      // capitalized word followed by lowercase words, so a capitalized word
+      // appearing right after another word's lowercase ending marks a new dish.
+      function splitDishes(text) {
+        const clean = (s) =>
+          s
+            .replace(/[#*_>]/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
 
-// A dish chunk like "Green 115:- ink. Kaffe Frasig aubergine med ris..."
-// becomes a { label, price, desc } row. Chunks without that pattern
-// (e.g. Kantin's single daily dish) are rendered as plain text instead.
-function parseDish(chunk) {
-  const m = chunk.match(/^([A-ZÅÄÖ][a-zA-ZåäöÅÄÖ /]*?)\s+(\d{2,3}:-)\s*(?:ink\.?\s*Kaffe\.?)?\s*(.*)$/s);
-  if (!m) return { label: null, desc: chunk };
-  return { label: m[1].trim(), price: m[2], desc: m[3].trim() };
-}
+        const byPrice = text
+          .split(/(?=[A-ZÅÄÖ][\wåäöÅÄÖ /-]{1,24}\s\d{2,3}:-)/)
+          .map(clean)
+          .filter(Boolean);
+        if (byPrice.length > 1) return byPrice;
 
-function dishesHtml(text) {
-  return splitDishes(text).map(chunk => {
-    const d = parseDish(chunk);
-    if (!d.label) return `<p class="dish-plain">${d.desc}</p>`;
-    return `
+        const byLine = text.split(/\n+/).map(clean).filter(Boolean);
+        if (byLine.length > 1) return byLine;
+
+        return byLine[0]
+          .split(/(?<=[a-zåäö])\s+(?=[A-ZÅÄÖ][a-zåäö]+(?:\s|$))/)
+          .map(clean)
+          .filter(Boolean);
+      }
+
+      // A dish chunk like "Green 115:- ink. Kaffe Frasig aubergine med ris..."
+      // becomes a { label, price, desc } row. Chunks without that pattern
+      // (e.g. Kantin's single daily dish) are rendered as plain text instead.
+      function parseDish(chunk) {
+        const m = chunk.match(
+          /^([A-ZÅÄÖ][a-zA-ZåäöÅÄÖ /]*?)\s+(\d{2,3}:-)\s*(?:ink\.?\s*Kaffe\.?)?\s*(.*)$/s,
+        );
+        if (!m) return { label: null, desc: chunk };
+        return { label: m[1].trim(), price: m[2], desc: m[3].trim() };
+      }
+
+      function dishesHtml(text) {
+        return splitDishes(text)
+          .map((chunk) => {
+            const d = parseDish(chunk);
+            if (!d.label) return `<p class="dish-plain">${d.desc}</p>`;
+            return `
       <div class="dish">
         <div class="dish-head"><span>${d.label}</span><span class="price">${d.price}</span></div>
-        ${d.desc ? `<p class="dish-desc">${d.desc}</p>` : ''}
+        ${d.desc ? `<p class="dish-desc">${d.desc}</p>` : ""}
       </div>`;
-  }).join('');
-}
+          })
+          .join("");
+      }
 
-// Photo markdown (![alt](url)) sometimes lands inside the last day's block
-// before any stop word shows up, so strip it outright rather than rely on
-// the cutoff point alone.
-function stripImages(text) {
-  return text.replace(/!\[[^\]]*\]\([^)]*\)/g, '');
-}
+      // Photo markdown (![alt](url)) sometimes lands inside the last day's block
+      // before any stop word shows up, so strip it outright rather than rely on
+      // the cutoff point alone.
+      function stripImages(text) {
+        return text.replace(/!\[[^\]]*\]\([^)]*\)/g, "");
+      }
 
-async function loadHtml(r, logs) {
-  const text = await fetchReadable(r.page, false, logs);
-  return splitByDays(stripImages(text), r.stop);
-}
+      async function loadHtml(r, logs) {
+        const text = await fetchReadable(r.page, false, logs);
+        return splitByDays(stripImages(text), r.stop);
+      }
 
-// Eatery Lund states the menu as a linked PDF rather than page text. Scan
-// the page text for any .pdf URL and pick the Swedish one — the site also
-// links an English and a café menu, so those are excluded.
-function findMenuPdf(text) {
-  const urls = text.match(/https?:\/\/[^\s")]+\.pdf[^\s")]*/gi) || [];
-  return urls.find(u => !/eng|cafe|café/i.test(u)) || null;
-}
+      // Eatery Lund states the menu as a linked PDF rather than page text. Scan
+      // the page text for any .pdf URL and pick the Swedish one — the site also
+      // links an English and a café menu, so those are excluded.
+      function findMenuPdf(text) {
+        const urls = text.match(/https?:\/\/[^\s")]+\.pdf[^\s")]*/gi) || [];
+        return urls.find((u) => !/eng|cafe|café/i.test(u)) || null;
+      }
 
-// A single reader's "successful" fetch isn't enough here: r.jina.ai's
-// readability extraction strips the "Menyer" section because it's just a
-// few bare links with no surrounding text, which it mistakes for nav
-// boilerplate. So instead of taking the first reader that returns any
-// text, we check each reader's text for the actual pdf link and only
-// move on if it's missing.
-// Try all three readers at once and take whichever finds the pdf link
-// first — sequential attempts made this the slowest part of the page.
-async function findMenuPdfUrl(pageUrl, logs) {
-  const attempts = READERS.map(build => (async () => {
-    const readerUrl = build(pageUrl);
-    try {
-      const text = await fetchText(readerUrl, 15000);
-      const pdfUrl = findMenuPdf(text);
-      log(logs, `fetch ${readerUrl} -> ${text.length} chars, pdf link: ${pdfUrl || 'none'}`);
-      if (!pdfUrl) throw new Error('no pdf link');
-      return pdfUrl;
-    } catch (e) {
-      log(logs, `fetch ${readerUrl} -> ${e.message}`);
-      throw e;
-    }
-  })());
+      // A single reader's "successful" fetch isn't enough here: r.jina.ai's
+      // readability extraction strips the "Menyer" section because it's just a
+      // few bare links with no surrounding text, which it mistakes for nav
+      // boilerplate. So instead of taking the first reader that returns any
+      // text, we check each reader's text for the actual pdf link and only
+      // move on if it's missing.
+      // Try all three readers at once and take whichever finds the pdf link
+      // first — sequential attempts made this the slowest part of the page.
+      async function findMenuPdfUrl(pageUrl, logs) {
+        const attempts = READERS.map((build) =>
+          (async () => {
+            const readerUrl = build(pageUrl);
+            try {
+              const text = await fetchText(readerUrl, 15000);
+              const pdfUrl = findMenuPdf(text);
+              log(
+                logs,
+                `fetch ${readerUrl} -> ${text.length} chars, pdf link: ${pdfUrl || "none"}`,
+              );
+              if (!pdfUrl) throw new Error("no pdf link");
+              return pdfUrl;
+            } catch (e) {
+              log(logs, `fetch ${readerUrl} -> ${e.message}`);
+              throw e;
+            }
+          })(),
+        );
 
-  try {
-    return await Promise.any(attempts);
-  } catch (e) {
-    throw new Error('menu link not found in any reader');
-  }
-}
+        try {
+          return await Promise.any(attempts);
+        } catch (e) {
+          throw new Error("menu link not found in any reader");
+        }
+      }
 
-async function loadEatery(r, logs) {
-  const pdfUrl = await findMenuPdfUrl(r.page, logs);
-  const pdfText = await fetchReadable(pdfUrl, true, logs);
-  return splitByDays(stripImages(pdfText), r.stop);
-}
+      async function loadEatery(r, logs) {
+        const pdfUrl = await findMenuPdfUrl(r.page, logs);
+        const pdfText = await fetchReadable(pdfUrl, true, logs);
+        return splitByDays(stripImages(pdfText), r.stop);
+      }
 
-const LOADERS = { bricks: loadHtml, eatery: loadEatery, kantin: loadHtml };
+      const LOADERS = {
+        bricks: loadHtml,
+        eatery: loadEatery,
+        kantin: loadHtml,
+      };
 
-function todayName() {
-  const jsDay = new Date().getDay(); // 0 = Sunday
-  return jsDay >= 1 && jsDay <= 5 ? DAYS[jsDay - 1] : null;
-}
+      function todayName() {
+        const jsDay = new Date().getDay(); // 0 = Sunday
+        return jsDay >= 1 && jsDay <= 5 ? DAYS[jsDay - 1] : null;
+      }
 
-function renderCard(r) {
-  const el = document.createElement('div');
-  el.className = 'card';
-  el.innerHTML = `
+      function renderCard(r) {
+        const el = document.createElement("div");
+        el.className = "card";
+        el.dataset.id = r.id;
+        el.innerHTML = `
     <h2>${r.name}</h2>
     <a class="src" href="${r.page}" target="_blank" rel="noopener">${r.page}</a>
+    <p class="goers" data-goers></p>
     <div class="today-block"><p class="status">Laddar meny…</p></div>
   `;
-  return el;
-}
+        return el;
+      }
 
-function renderMenu(el, days) {
-  const today = todayName();
-  const block = el.querySelector('.today-block');
-  block.innerHTML = '';
+      function renderMenu(el, days) {
+        const today = todayName();
+        const block = el.querySelector(".today-block");
+        block.innerHTML = "";
 
-  if (today && days[today]) {
-    block.innerHTML = `<span class="today-label">${today}</span>` + dishesHtml(days[today]);
-  } else if (!today) {
-    block.innerHTML = `<p class="status">Stängt i helgen — här är veckans meny.</p>`;
-  } else {
-    block.innerHTML = `<p class="status">Ingen meny hittad för idag.</p>`;
-  }
+        if (today && days[today]) {
+          block.innerHTML =
+            `<span class="today-label">${today}</span>` +
+            dishesHtml(days[today]);
+        } else if (!today) {
+          block.innerHTML = `<p class="status">Stängt i helgen — här är veckans meny.</p>`;
+        } else {
+          block.innerHTML = `<p class="status">Ingen meny hittad för idag.</p>`;
+        }
 
-  const rest = DAYS.filter(d => days[d] && d !== today);
-  if (rest.length) {
-    const details = document.createElement('details');
-    details.open = !today;
-    details.innerHTML = `<summary>Hela veckan</summary>`;
-    rest.forEach(d => {
-      const dayEl = document.createElement('div');
-      dayEl.className = 'day';
-      dayEl.innerHTML = `<h3>${d}</h3>` + dishesHtml(days[d]);
-      details.appendChild(dayEl);
-    });
-    el.appendChild(details);
-  }
-}
+        const rest = DAYS.filter((d) => days[d] && d !== today);
+        if (rest.length) {
+          const details = document.createElement("details");
+          details.open = !today;
+          details.innerHTML = `<summary>Hela veckan</summary>`;
+          rest.forEach((d) => {
+            const dayEl = document.createElement("div");
+            dayEl.className = "day";
+            dayEl.innerHTML = `<h3>${d}</h3>` + dishesHtml(days[d]);
+            details.appendChild(dayEl);
+          });
+          el.appendChild(details);
+        }
+      }
 
-function renderError(el, r, err, logs) {
-  const block = el.querySelector('.today-block');
-  block.innerHTML = `<p class="status error">Kunde inte hämta menyn just nu.
+      function renderError(el, r, err, logs) {
+        const block = el.querySelector(".today-block");
+        block.innerHTML = `<p class="status error">Kunde inte hämta menyn just nu.
     <a href="${r.page}" target="_blank" rel="noopener">Öppna sidan</a> istället.</p>
-    <p class="status" style="font-size:11px">${err ? err.message : ''}</p>`;
+    <p class="status" style="font-size:11px">${err ? err.message : ""}</p>`;
 
-  if (logs && logs.length) {
-    const details = document.createElement('details');
-    details.innerHTML = `<summary>Debug</summary>
-      <p class="status" style="font-size:11px; white-space:pre-wrap">${logs.join('\n')}</p>`;
-    block.appendChild(details);
-  }
-}
+        if (logs && logs.length) {
+          const details = document.createElement("details");
+          details.innerHTML = `<summary>Debug</summary>
+      <p class="status" style="font-size:11px; white-space:pre-wrap">${logs.join("\n")}</p>`;
+          block.appendChild(details);
+        }
+      }
 
-async function loadAll() {
-  const container = document.getElementById('cards');
-  container.innerHTML = '';
-  RESTAURANTS.forEach(r => {
-    const el = renderCard(r);
-    container.appendChild(el);
+      async function loadAll() {
+        const container = document.getElementById("cards");
+        container.innerHTML = "";
+        RESTAURANTS.forEach((r) => {
+          const el = renderCard(r);
+          container.appendChild(el);
 
-    const logs = [];
-    LOADERS[r.id](r, logs)
-      .then(days => {
-        if (Object.keys(days).length === 0) throw new Error('no days parsed');
-        renderMenu(el, days);
-      })
-      .catch(err => renderError(el, r, err, logs));
-  });
-}
+          // Whole card is clickable, except the source link (should just open the
+          // page) and the "Hela veckan" details/summary (should just expand).
+          el.addEventListener("click", (e) => {
+            if (e.target.closest("a, summary, details")) return;
+            toggleGoing(r.id);
+          });
 
-document.getElementById('today-date').textContent =
-  new Date().toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+          const logs = [];
+          LOADERS[r.id](r, logs)
+            .then((days) => {
+              if (Object.keys(days).length === 0)
+                throw new Error("no days parsed");
+              renderMenu(el, days);
+            })
+            .catch((err) => renderError(el, r, err, logs));
+        });
 
-document.getElementById('refresh').addEventListener('click', loadAll);
-loadAll();
-</script>
-</body>
+        // Cards were just rebuilt from scratch (e.g. refresh button) — reapply
+        // whatever goer state we already know about, since the DOM elements are new.
+        renderGoers(latestVotesData);
+      }
+
+      document.getElementById("today-date").textContent =
+        new Date().toLocaleDateString("sv-SE", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+        });
+
+      document.getElementById("refresh").addEventListener("click", loadAll);
+      loadAll();
+
+      // ============================================================
+      // --- Voting -------------------------------------------------
+      // ============================================================
+      //
+      // SETUP (one-time, do this in the Firebase console before this works):
+      //
+      // 1. Go to https://console.firebase.google.com -> "Add project" -> give it
+      //    any name (e.g. "lunch-voting") -> you can skip Google Analytics.
+      // 2. In the left sidebar: Build -> Realtime Database -> "Create Database".
+      //    Pick a region close to you (e.g. europe-west1), and start in
+      //    "locked mode" (we set our own rules below, next step).
+      // 3. Go to the "Rules" tab of the Realtime Database and paste:
+      //
+      //      {
+      //        "rules": {
+      //          "votes": {
+      //            "$date": {
+      //              ".read": true,
+      //              ".write": true
+      //            }
+      //          }
+      //        }
+      //      }
+      //
+      //    This scopes public read/write to ONLY the "votes" node, keyed by date.
+      //    Anyone with your config below can vote or clear votes -- that's the
+      //    deliberate trade-off for "no accounts, no backend".
+      // 4. Go to Project settings (gear icon) -> General -> scroll to
+      //    "Your apps" -> click the web icon (</>) -> register the app
+      //    (no hosting needed) -> copy the firebaseConfig object it gives you
+      //    and paste it below, replacing the placeholder.
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyB9n7njIWbS29IR9_GBrQrbHrjXCWFM0f8",
+        authDomain: "lunch-voting-c1664.firebaseapp.com",
+        databaseURL:
+          "https://lunch-voting-c1664-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "lunch-voting-c1664",
+        storageBucket: "lunch-voting-c1664.firebasestorage.app",
+        messagingSenderId: "552135684513",
+        appId: "1:552135684513:web:143407eea49662a49bdbe0",
+      };
+
+      // Anonymous per-browser id, NOT an account -- just enough so we know
+      // "this browser already picked a restaurant today" and can let it change
+      // its pick or show its name against a restaurant.
+      function voterId() {
+        let id = localStorage.getItem("lunchVoterId");
+        if (!id) {
+          id = "v-" + Math.random().toString(36).slice(2, 10);
+          localStorage.setItem("lunchVoterId", id);
+        }
+        return id;
+      }
+
+      function todayKey() {
+        return new Date().toISOString().slice(0, 10); // e.g. "2026-08-18"
+      }
+
+      let db = null;
+      let latestVotesData = null; // last known { restaurantId: { voterId: name } } from Firebase
+
+      function myName() {
+        return (localStorage.getItem("lunchUserName") || "").trim();
+      }
+
+      function toggleGoing(restaurantId) {
+        const name = myName();
+        if (!name) {
+          document.getElementById("name-input").focus();
+          document.getElementById("vote-hint").textContent =
+            "Skriv ditt namn högst upp först.";
+          return;
+        }
+        if (!db) {
+          document.getElementById("vote-hint").textContent =
+            "Kunde inte ansluta -- kolla instruktionerna i koden.";
+          return;
+        }
+
+        const me = voterId();
+        const alreadyHere = !!(
+          latestVotesData &&
+          latestVotesData[restaurantId] &&
+          latestVotesData[restaurantId][me] !== undefined
+        );
+
+        const updates = {};
+        // Clear this person from every restaurant first -- a single multi-path
+        // update, so there's no read-then-write race if someone taps twice fast.
+        RESTAURANTS.forEach((r) => {
+          updates[`votes/${todayKey()}/${r.id}/${me}`] = null;
+        });
+        // Clicking an already-selected card unmarks it; otherwise mark the new one.
+        if (!alreadyHere)
+          updates[`votes/${todayKey()}/${restaurantId}/${me}`] = name;
+        db.ref().update(updates);
+      }
+
+      function renderGoers(data) {
+        latestVotesData = data;
+        const me = voterId();
+        let myRestaurantName = null;
+
+        RESTAURANTS.forEach((r) => {
+          const namesByVoter = (data && data[r.id]) || {};
+          const names = Object.values(namesByVoter);
+          const cardEl = document.querySelector(`.card[data-id="${r.id}"]`);
+          if (!cardEl) return; // not built yet -- renderGoers gets re-run once it is
+
+          const goersEl = cardEl.querySelector("[data-goers]");
+          if (goersEl) {
+            goersEl.textContent = names.length
+              ? `Går hit: ${names.join(", ")}`
+              : "";
+          }
+
+          const iAmHere = namesByVoter[me] !== undefined;
+          cardEl.classList.toggle("selected", iAmHere);
+          if (iAmHere) myRestaurantName = r.name;
+        });
+
+        const hint = document.getElementById("vote-hint");
+        if (hint) {
+          hint.textContent = myRestaurantName
+            ? `Du går till ${myRestaurantName}. Klicka igen för att avmarkera.`
+            : "Klicka på en restaurang för att visa att du går dit.";
+        }
+      }
+
+      function initNameInput() {
+        const nameInput = document.getElementById("name-input");
+        nameInput.value = myName();
+
+        nameInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") nameInput.blur();
+        });
+
+        nameInput.addEventListener("change", () => {
+          const name = nameInput.value.trim();
+          localStorage.setItem("lunchUserName", name);
+
+          // If this person already has a pick for today, keep the displayed
+          // name in sync rather than requiring them to re-click their restaurant.
+          if (!db || !name || !latestVotesData) return;
+          const me = voterId();
+          RESTAURANTS.forEach((r) => {
+            if (
+              latestVotesData[r.id] &&
+              latestVotesData[r.id][me] !== undefined
+            ) {
+              db.ref(`votes/${todayKey()}/${r.id}/${me}`).set(name);
+            }
+          });
+        });
+      }
+
+      function initVoting() {
+        initNameInput();
+
+        if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+          document.getElementById("vote-hint").textContent =
+            "Detta är inte konfigurerat ännu (se instruktioner i koden).";
+          return;
+        }
+        try {
+          firebase.initializeApp(firebaseConfig);
+          db = firebase.database();
+          db.ref(`votes/${todayKey()}`).on("value", (snap) =>
+            renderGoers(snap.val()),
+          );
+        } catch (e) {
+          console.error("voting init failed", e);
+          document.getElementById("vote-hint").textContent =
+            "Kunde inte ladda vem som går vart.";
+        }
+      }
+
+      initVoting();
+    </script>
+  </body>
 </html>
