@@ -414,8 +414,26 @@
             .replace(/\s+/g, " ")
             .trim();
 
-        const byPrice = text
-          .split(/(?=[A-ZÅÄÖ][\wåäöÅÄÖ /-]{1,24}\s\d{2,3}:-)/)
+        // Find each "Label 115:-" marker with a *consuming* match rather than
+        // a zero-width lookahead split. This matters for multi-word labels
+        // like "World Wide 115:-": a lookahead just checks "does a valid
+        // label+price start here?" at every character position without ever
+        // consuming text, so it also matches starting at "Wide 115:-" a few
+        // characters later -- even though those characters already belong to
+        // the "World Wide" match -- and both positions become split points,
+        // slicing "World" off as its own orphan chunk. A consuming match
+        // can't do that: once it greedily matches "World Wide 115:-", the
+        // regex's lastIndex moves past those characters entirely, so the
+        // engine never re-checks "Wide" as a fresh starting point.
+        const priceRe = /[A-ZÅÄÖ][\wåäöÅÄÖ /-]{1,24}\s\d{2,3}:-/g;
+        const starts = [...text.matchAll(priceRe)].map((m) => m.index);
+        const byPrice = starts
+          .map((start, i) =>
+            text.slice(
+              start,
+              i + 1 < starts.length ? starts[i + 1] : text.length,
+            ),
+          )
           .map(clean)
           .filter(Boolean);
         if (byPrice.length > 1) return byPrice;
@@ -558,7 +576,7 @@
         const rest = DAYS.filter(
           (d, i) => days[d] && (todayIndex === -1 || i > todayIndex),
         );
-        
+
         if (rest.length) {
           const details = document.createElement("details");
           details.open = !today;
