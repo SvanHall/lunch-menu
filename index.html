@@ -22,6 +22,7 @@
         --line: #e8e1d3;
         --accent: #e15a3c;
         --sage: #5b7b5d;
+        --gold: #c9a227;
       }
       * {
         box-sizing: border-box;
@@ -179,6 +180,17 @@
       }
       .dish-plain:last-child {
         margin-bottom: 0;
+      }
+
+      .dish-pancake {
+        border-left-color: var(--gold);
+        background: linear-gradient(135deg, #fff9e6, #fbedc0);
+        box-shadow:
+          0 0 0 1px rgba(201, 162, 39, 0.35),
+          0 2px 8px rgba(201, 162, 39, 0.18);
+      }
+      .dish-pancake .dish-head {
+        color: #7a5c14;
       }
 
       .error a {
@@ -493,13 +505,25 @@
         return { label: m[1].trim(), price: m[2], desc: m[3].trim() };
       }
 
+      // Eatery Lund always has a 4th Thursday alternative on top of the usual
+      // three: pancakes with lightly whipped cream and homemade jam. The
+      // restaurant tweaks the description text now and then, so we only
+      // anchor on the "Pancake Thursday" heading itself to decide whether to
+      // gold-highlight the row -- if a 4th alternative ever shows up that
+      // isn't the pancake special, it renders like any other dish.
+      function isPancakeThursday(text) {
+        return /pancake\s+thursday/i.test(text);
+      }
+
       function dishesHtml(text) {
         return splitDishes(text)
           .map((chunk) => {
             const d = parseDish(chunk);
-            if (!d.label) return `<p class="dish-plain">${d.desc}</p>`;
+            const goldClass = isPancakeThursday(chunk) ? " dish-pancake" : "";
+            if (!d.label)
+              return `<p class="dish-plain${goldClass}">${d.desc}</p>`;
             return `
-      <div class="dish">
+      <div class="dish${goldClass}">
         <div class="dish-head"><span>${d.label}</span><span class="price">${d.price}</span></div>
         ${d.desc ? `<p class="dish-desc">${d.desc}</p>` : ""}
       </div>`;
