@@ -273,7 +273,7 @@
           id: "bricks",
           name: "Bricks Eatery",
           page: "https://brickseatery.se/lunch/",
-          stop: "ÖPPETTIDER",
+          stop: "VÅRA ÖPPETTIDER",
           kind: "html",
         },
         {
@@ -336,15 +336,19 @@
         return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       }
 
-      // Case-insensitive "last index of", so a stop word that also happens to
-      // appear earlier in the document (e.g. a banner repeated in a header and
-      // footer) still cuts off only the trailing repeat.
-      function lastIndexCI(text, needle) {
+      // Case-insensitive "first index of, searching from a given position" --
+      // used to find where a stop word (e.g. "ÖPPETTIDER") appears after the
+      // last day heading, so we know where to cut the menu off. We search
+      // forward from that position rather than taking the stop word's LAST
+      // occurrence anywhere on the page: some pages repeat it again further
+      // down (e.g. a footer nav link after the visible "VÅRA ÖPPETTIDER"
+      // block), and taking that final occurrence would push the cutoff past
+      // the whole footer/contact block, pulling it into the last day's menu.
+      function firstIndexAfter(text, needle, from) {
         const re = new RegExp(escapeRegExp(needle), "gi");
-        let m,
-          last = -1;
-        while ((m = re.exec(text))) last = m.index;
-        return last;
+        re.lastIndex = from;
+        const m = re.exec(text);
+        return m ? m.index : -1;
       }
 
       // jinaOnly is used for PDFs: only r.jina.ai extracts PDF text for us, the
@@ -380,13 +384,17 @@
 
         if (hits.length === 0) return {};
 
-        // Only trim trailing content if the stop word actually falls after the
-        // last day heading — otherwise a banner that also appears near the top
-        // (header/footer repeats) could cut the whole menu off before it starts.
+        // Only trim trailing content if a stop word actually appears after
+        // the last day heading — pages without one (or where it's missing)
+        // just keep everything to the end.
         let end = text.length;
         if (stopWord) {
-          const cut = lastIndexCI(text, stopWord);
-          if (cut > hits[hits.length - 1].pos) end = cut;
+          const cut = firstIndexAfter(
+            text,
+            stopWord,
+            hits[hits.length - 1].pos,
+          );
+          if (cut !== -1) end = cut;
         }
 
         const result = {};
@@ -414,19 +422,64 @@
             .replace(/\s+/g, " ")
             .trim();
 
-        const byPrice = text
-          .split(/(?=[A-ZÅÄÖ][\wåäöÅÄÖ /-]{1,24}\s\d{2,3}:-)/)
+        // Find each "Label 115:-" marker with a *consuming* match rather than
+        // a zero-width lookahead split. This matters for multi-word labels
+        // like "World Wide 115:-": a lookahead just checks "does a valid
+        // label+price start here?" at every character position without ever
+        // consuming text, so it also matches starting at "Wide 115:-" a few
+        // characters later -- even though those characters already belong to
+        // the "World Wide" match -- and both positions become split points,
+        // slicing "World" off as its own orphan chunk. A consuming match
+        // can't do that: once it greedily matches "World Wide 115:-", the
+        // regex's lastIndex moves past those characters entirely, so the
+        // engine never re-checks "Wide" as a fresh starting point.
+        const priceRe = /[A-ZÅÄÖ][\wåäöÅÄÖ /-]{1,24}\s\d{2,3}:-/g;
+        const starts = [...text.matchAll(priceRe)].map((m) => m.index);
+        const byPrice = starts
+          .map((start, i) =>
+            text.slice(
+              start,
+              i + 1 < starts.length ? starts[i + 1] : text.length,
+            ),
+          )
           .map(clean)
           .filter(Boolean);
         if (byPrice.length > 1) return byPrice;
 
-        const byLine = text.split(/\n+/).map(clean).filter(Boolean);
-        if (byLine.length > 1) return byLine;
+        // A genuine wrapped/mis-split remainder (e.g. "Padano" left behind
+        // from "Grana Padano") is short -- a word or two, no dish content of
+        // its own -- so fold any such short chunk back onto the previous one
+        // rather than treating it as a new dish. Shared by both fallbacks
+        // below since either can produce this kind of stray fragment.
+        function mergeShortFragments(chunks) {
+          const merged = [];
+          for (const chunk of chunks) {
+            const wordCount = chunk.split(/\s+/).length;
+            if (merged.length && wordCount <= 2 && chunk.length <= 20) {
+              merged[merged.length - 1] += " " + chunk;
+            } else {
+              merged.push(chunk);
+            }
+          }
+          return merged;
+        }
 
-        return byLine[0]
+        const byLine = text.split(/\n+/).map(clean).filter(Boolean);
+        if (byLine.length > 1) return mergeShortFragments(byLine);
+
+        // Eatery Lund's PDF, as extracted by the reader proxy, has no
+        // newlines between dishes at all -- an entire day is one continuous
+        // paragraph. Fall back to Swedish sentence case: each dish starts
+        // with exactly one capitalized word followed by lowercase words, so
+        // a capitalized word right after another word's lowercase ending
+        // marks a new dish. This mistakes two-capitalized-word proper nouns
+        // like "Grana Padano" for a sentence boundary, which is exactly what
+        // mergeShortFragments cleans up afterward.
+        const bySentence = byLine[0]
           .split(/(?<=[a-zåäö])\s+(?=[A-ZÅÄÖ][a-zåäö]+(?:\s|$))/)
           .map(clean)
           .filter(Boolean);
+        return mergeShortFragments(bySentence);
       }
 
       // A dish chunk like "Green 115:- ink. Kaffe Frasig aubergine med ris..."
@@ -558,7 +611,7 @@
         const rest = DAYS.filter(
           (d, i) => days[d] && (todayIndex === -1 || i > todayIndex),
         );
-        
+
         if (rest.length) {
           const details = document.createElement("details");
           details.open = !today;
