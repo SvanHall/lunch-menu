@@ -446,13 +446,40 @@
           .filter(Boolean);
         if (byPrice.length > 1) return byPrice;
 
-        const byLine = text.split(/\n+/).map(clean).filter(Boolean);
-        if (byLine.length > 1) return byLine;
+        // A genuine wrapped/mis-split remainder (e.g. "Padano" left behind
+        // from "Grana Padano") is short -- a word or two, no dish content of
+        // its own -- so fold any such short chunk back onto the previous one
+        // rather than treating it as a new dish. Shared by both fallbacks
+        // below since either can produce this kind of stray fragment.
+        function mergeShortFragments(chunks) {
+          const merged = [];
+          for (const chunk of chunks) {
+            const wordCount = chunk.split(/\s+/).length;
+            if (merged.length && wordCount <= 2 && chunk.length <= 20) {
+              merged[merged.length - 1] += " " + chunk;
+            } else {
+              merged.push(chunk);
+            }
+          }
+          return merged;
+        }
 
-        return byLine[0]
+        const byLine = text.split(/\n+/).map(clean).filter(Boolean);
+        if (byLine.length > 1) return mergeShortFragments(byLine);
+
+        // Eatery Lund's PDF, as extracted by the reader proxy, has no
+        // newlines between dishes at all -- an entire day is one continuous
+        // paragraph. Fall back to Swedish sentence case: each dish starts
+        // with exactly one capitalized word followed by lowercase words, so
+        // a capitalized word right after another word's lowercase ending
+        // marks a new dish. This mistakes two-capitalized-word proper nouns
+        // like "Grana Padano" for a sentence boundary, which is exactly what
+        // mergeShortFragments cleans up afterward.
+        const bySentence = byLine[0]
           .split(/(?<=[a-zåäö])\s+(?=[A-ZÅÄÖ][a-zåäö]+(?:\s|$))/)
           .map(clean)
           .filter(Boolean);
+        return mergeShortFragments(bySentence);
       }
 
       // A dish chunk like "Green 115:- ink. Kaffe Frasig aubergine med ris..."
