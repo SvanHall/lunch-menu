@@ -273,7 +273,7 @@
           id: "bricks",
           name: "Bricks Eatery",
           page: "https://brickseatery.se/lunch/",
-          stop: "ÖPPETTIDER",
+          stop: "VÅRA ÖPPETTIDER",
           kind: "html",
         },
         {
@@ -336,15 +336,19 @@
         return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       }
 
-      // Case-insensitive "last index of", so a stop word that also happens to
-      // appear earlier in the document (e.g. a banner repeated in a header and
-      // footer) still cuts off only the trailing repeat.
-      function lastIndexCI(text, needle) {
+      // Case-insensitive "first index of, searching from a given position" --
+      // used to find where a stop word (e.g. "ÖPPETTIDER") appears after the
+      // last day heading, so we know where to cut the menu off. We search
+      // forward from that position rather than taking the stop word's LAST
+      // occurrence anywhere on the page: some pages repeat it again further
+      // down (e.g. a footer nav link after the visible "VÅRA ÖPPETTIDER"
+      // block), and taking that final occurrence would push the cutoff past
+      // the whole footer/contact block, pulling it into the last day's menu.
+      function firstIndexAfter(text, needle, from) {
         const re = new RegExp(escapeRegExp(needle), "gi");
-        let m,
-          last = -1;
-        while ((m = re.exec(text))) last = m.index;
-        return last;
+        re.lastIndex = from;
+        const m = re.exec(text);
+        return m ? m.index : -1;
       }
 
       // jinaOnly is used for PDFs: only r.jina.ai extracts PDF text for us, the
@@ -380,13 +384,17 @@
 
         if (hits.length === 0) return {};
 
-        // Only trim trailing content if the stop word actually falls after the
-        // last day heading — otherwise a banner that also appears near the top
-        // (header/footer repeats) could cut the whole menu off before it starts.
+        // Only trim trailing content if a stop word actually appears after
+        // the last day heading — pages without one (or where it's missing)
+        // just keep everything to the end.
         let end = text.length;
         if (stopWord) {
-          const cut = lastIndexCI(text, stopWord);
-          if (cut > hits[hits.length - 1].pos) end = cut;
+          const cut = firstIndexAfter(
+            text,
+            stopWord,
+            hits[hits.length - 1].pos,
+          );
+          if (cut !== -1) end = cut;
         }
 
         const result = {};
