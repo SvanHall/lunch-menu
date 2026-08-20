@@ -554,7 +554,11 @@
           block.innerHTML = `<p class="status">Ingen meny hittad för idag.</p>`;
         }
 
-        const rest = DAYS.filter((d) => days[d] && d !== today);
+        const todayIndex = DAYS.indexOf(today);
+        const rest = DAYS.filter(
+          (d, i) => days[d] && (todayIndex === -1 || i > todayIndex),
+        );
+        
         if (rest.length) {
           const details = document.createElement("details");
           details.open = !today;
