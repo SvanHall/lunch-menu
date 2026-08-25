@@ -280,6 +280,11 @@
     <script>
       const DAYS = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"];
 
+      // Rebuilt on every loadAll() call, read by renderGoers() to reapply
+      // vote state to the fresh cards. Declared up here, before any code
+      // that could reference it, so there's no temporal-dead-zone crash.
+      let latestVotesData = null;
+
       const RESTAURANTS = [
         {
           id: "bricks",
@@ -306,8 +311,8 @@
 
       // Reader proxies convert a page into plain readable text, sidestepping both
       // CORS (the site itself won't let a browser fetch it directly) and, for the
-      // PDF case, the need to parse a PDF client-side. We try them in order and
-      // fall back to the next if one is down or rate-limited.
+      // PDF case, the need to parse a PDF client-side. We race them and use
+      // whichever answers first with usable text.
       const READERS = [
         (url) => "https://r.jina.ai/" + url,
         (url) =>
@@ -363,23 +368,33 @@
         return m ? m.index : -1;
       }
 
-      // jinaOnly is used for PDFs: only r.jina.ai extracts PDF text for us, the
-      // other proxies would just hand back raw PDF bytes we can't read as text.
-      // PDF conversion is slower than a plain page fetch, so it gets a longer timeout.
+      // Races every reader and returns whichever gives usable text first.
+      // jinaOnly restricts this to r.jina.ai alone: it's the only reader that
+      // extracts PDF text for us, the others would just hand back raw PDF
+      // bytes we can't read as text. PDF conversion is also slower than a
+      // plain page fetch, so it gets a longer timeout.
       async function fetchReadable(url, jinaOnly = false, logs = []) {
         const readers = jinaOnly ? [READERS[0]] : READERS;
         const timeout = jinaOnly ? 30000 : 15000;
-        for (const build of readers) {
+
+        const attempts = readers.map(async (build) => {
           const readerUrl = build(url);
           try {
             const text = await fetchText(readerUrl, timeout);
             log(logs, `fetch ${readerUrl} -> ${text.length} chars`);
-            if (text.length > 80) return text;
+            if (text.length <= 80) throw new Error("response too short");
+            return text;
           } catch (e) {
             log(logs, `fetch ${readerUrl} -> ${e.message}`);
+            throw e;
           }
+        });
+
+        try {
+          return await Promise.any(attempts);
+        } catch (e) {
+          throw new Error("could not fetch " + url);
         }
-        throw new Error("could not fetch " + url);
       }
 
       // The menu pages just list "Måndag ... Tisdag ... Fredag" as plain text with
@@ -763,7 +778,6 @@
       }
 
       let db = null;
-      let latestVotesData = null; // last known { restaurantId: { voterId: name } } from Firebase
 
       function myName() {
         return (localStorage.getItem("lunchUserName") || "").trim();
