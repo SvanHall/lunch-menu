@@ -556,9 +556,19 @@
         return text.replace(/!\[[^\]]*\]\([^)]*\)/g, "");
       }
 
+      // corsproxy.io and allorigins.win just proxy the raw page HTML -- unlike
+      // r.jina.ai, they don't convert it to clean readable text. Strip it down
+      // to plain text ourselves so the day/dish parsing below (which expects
+      // prose, not markup) has something sane to work with.
+      function htmlToText(html) {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        doc.querySelectorAll("script, style, noscript, svg").forEach((el) => el.remove());
+        return doc.body.textContent.replace(/\n{3,}/g, "\n\n").trim();
+      }
+
       async function loadHtml(r, logs) {
-        const text = await fetchReadable(r.page, false, logs);
-        return splitByDays(stripImages(text), r.stop);
+        const html = await fetchReadable(r.page, false, logs);
+        return splitByDays(htmlToText(html), r.stop);
       }
 
       // Eatery Lund states the menu as a linked PDF rather than page text. Scan
