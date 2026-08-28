@@ -312,17 +312,22 @@
       // Reader proxies convert a page into plain readable text, sidestepping
       // CORS (the site itself won't let a browser fetch it directly). We race
       // them and use whichever answers first with usable text.
+      //
+      // allorigins.win and corsproxy.io used to work here but don't anymore:
+      // allorigins now returns server errors, and corsproxy.io started
+      // requiring a paid API key -- without one it just returns its own
+      // marketing page as a "successful" 200 response, which then got parsed
+      // as if it were the restaurant's menu (the actual cause of the "weird
+      // menus" bug). codetabs and r.jina.ai are both still free and keyless.
       const READERS = [
         (url) =>
-          "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
-        (url) => "https://corsproxy.io/?url=" + encodeURIComponent(url),
+          "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url),
+        (url) => "https://r.jina.ai/" + url,
       ];
 
       // r.jina.ai is the only reader that converts a PDF into text rather than
       // just proxying raw bytes, so it's kept separate and used only for that.
-      // As of now it requires an API key we don't have and 401s on every
-      // request -- left in so it starts working again the moment that changes,
-      // without silently feeding raw PDF bytes through as if they were text.
+      // It works without an API key, just rate-limited to 20 requests/minute.
       const PDF_READER = (url) => "https://r.jina.ai/" + url;
 
       // The timeout has to cover reading the response body too, not just the
@@ -585,7 +590,7 @@
       // boilerplate. So instead of taking the first reader that returns any
       // text, we check each reader's text for the actual pdf link and only
       // move on if it's missing.
-      // Try all three readers at once and take whichever finds the pdf link
+      // Try both readers at once and take whichever finds the pdf link
       // first — sequential attempts made this the slowest part of the page.
       async function findMenuPdfUrl(pageUrl, logs) {
         const attempts = READERS.map((build) =>
