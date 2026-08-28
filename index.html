@@ -277,7 +277,14 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
+    <!-- pdf.js reads Eatery Lund's PDF menu directly in the browser, so we're
+     not dependent on a third-party reader service converting it for us. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
     <script>
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
       const DAYS = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"];
 
       // Rebuilt on every loadAll() call, read by renderGoers() to reapply
@@ -311,24 +318,21 @@
 
       // Reader proxies convert a page into plain readable text, sidestepping
       // CORS (the site itself won't let a browser fetch it directly). We race
-      // them and use whichever answers first with usable text.
+      // all of them and use whichever answers first with usable text.
       //
-      // allorigins.win and corsproxy.io used to work here but don't anymore:
-      // allorigins now returns server errors, and corsproxy.io started
-      // requiring a paid API key -- without one it just returns its own
-      // marketing page as a "successful" 200 response, which then got parsed
-      // as if it were the restaurant's menu (the actual cause of the "weird
-      // menus" bug). codetabs and r.jina.ai are both still free and keyless.
+      // None of the free ones are reliable on their own -- corsproxy.io now
+      // requires a paid key, and live testing showed r.jina.ai 401ing and
+      // codetabs timing out. So instead of trusting a single one, we race
+      // three independent proxies and only need one to work. If a menu still
+      // fails to load, each card's "Debug" section logs exactly which
+      // proxies were tried and how each one failed.
       const READERS = [
         (url) =>
+          "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+        (url) => "https://thingproxy.freeboard.io/fetch/" + url,
+        (url) =>
           "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url),
-        (url) => "https://r.jina.ai/" + url,
       ];
-
-      // r.jina.ai is the only reader that converts a PDF into text rather than
-      // just proxying raw bytes, so it's kept separate and used only for that.
-      // It works without an API key, just rate-limited to 20 requests/minute.
-      const PDF_READER = (url) => "https://r.jina.ai/" + url;
 
       // The timeout has to cover reading the response body too, not just the
       // initial connection — a proxy can accept the request and then stall
@@ -342,13 +346,11 @@
       // behavior for our purposes, at the cost of not actually cancelling the
       // underlying request (it keeps running in the background, we just stop
       // waiting on it) — fine for small text fetches like these.
-      async function fetchText(url, ms, headers) {
+      function withTimeout(promise, ms) {
         const timeout = new Promise((_, reject) =>
           setTimeout(() => reject(new Error("timeout after " + ms + "ms")), ms),
         );
-        const res = await Promise.race([fetch(url, { headers }), timeout]);
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return await res.text();
+        return Promise.race([promise, timeout]);
       }
 
       // Debug trail: each restaurant gets its own log array, printed to the
@@ -379,19 +381,42 @@
       }
 
       // Races every reader and returns whichever gives usable text first.
-      // pdfMode uses PDF_READER alone instead of the general pool, and gets a
-      // longer timeout since PDF conversion is slower than a plain page fetch.
-      async function fetchReadable(url, pdfMode = false, logs = []) {
-        const readers = pdfMode ? [PDF_READER] : READERS;
-        const timeout = pdfMode ? 30000 : 15000;
-
-        const attempts = readers.map(async (build) => {
+      async function fetchReadable(url, logs = []) {
+        const attempts = READERS.map(async (build) => {
           const readerUrl = build(url);
           try {
-            const text = await fetchText(readerUrl, timeout);
+            const res = await withTimeout(fetch(readerUrl), 15000);
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const text = await res.text();
             log(logs, `fetch ${readerUrl} -> ${text.length} chars`);
             if (text.length <= 80) throw new Error("response too short");
             return text;
+          } catch (e) {
+            log(logs, `fetch ${readerUrl} -> ${e.message}`);
+            throw e;
+          }
+        });
+
+        try {
+          return await Promise.any(attempts);
+        } catch (e) {
+          throw new Error("could not fetch " + url);
+        }
+      }
+
+      // Same idea as fetchReadable, but keeps the response as raw bytes --
+      // used for the PDF, which pdf.js needs untouched rather than decoded
+      // as text (decoding a PDF's binary content as text would corrupt it).
+      async function fetchBytes(url, logs = []) {
+        const attempts = READERS.map(async (build) => {
+          const readerUrl = build(url);
+          try {
+            const res = await withTimeout(fetch(readerUrl), 20000);
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const buf = await res.arrayBuffer();
+            log(logs, `fetch ${readerUrl} -> ${buf.byteLength} bytes`);
+            if (buf.byteLength < 1000) throw new Error("response too small");
+            return buf;
           } catch (e) {
             log(logs, `fetch ${readerUrl} -> ${e.message}`);
             throw e;
@@ -554,17 +579,9 @@
           .join("");
       }
 
-      // Photo markdown (![alt](url)) sometimes lands inside the last day's block
-      // before any stop word shows up, so strip it outright rather than rely on
-      // the cutoff point alone.
-      function stripImages(text) {
-        return text.replace(/!\[[^\]]*\]\([^)]*\)/g, "");
-      }
-
-      // corsproxy.io and allorigins.win just proxy the raw page HTML -- unlike
-      // r.jina.ai, they don't convert it to clean readable text. Strip it down
-      // to plain text ourselves so the day/dish parsing below (which expects
-      // prose, not markup) has something sane to work with.
+      // Our readers just proxy the raw page HTML rather than converting it to
+      // clean readable text, so we strip it down to plain text ourselves --
+      // the day/dish parsing below expects prose, not markup.
       function htmlToText(html) {
         const doc = new DOMParser().parseFromString(html, "text/html");
         doc.querySelectorAll("script, style, noscript, svg").forEach((el) => el.remove());
@@ -572,8 +589,24 @@
       }
 
       async function loadHtml(r, logs) {
-        const html = await fetchReadable(r.page, false, logs);
+        const html = await fetchReadable(r.page, logs);
         return splitByDays(htmlToText(html), r.stop);
+      }
+
+      // Loads a PDF's pages with pdf.js and joins their text content. hasEOL
+      // marks the end of a visual line in the original layout, so we use it
+      // to rebuild line breaks -- without them, splitDishes has no way to
+      // tell where one dish ends and the next begins.
+      async function extractPdfText(buf) {
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+        let text = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map((it) => it.str + (it.hasEOL ? "\n" : " ")).join("");
+          text += "\n";
+        }
+        return text;
       }
 
       // Eatery Lund states the menu as a linked PDF rather than page text. Scan
@@ -590,14 +623,16 @@
       // boilerplate. So instead of taking the first reader that returns any
       // text, we check each reader's text for the actual pdf link and only
       // move on if it's missing.
-      // Try both readers at once and take whichever finds the pdf link
+      // Try every reader at once and take whichever finds the pdf link
       // first — sequential attempts made this the slowest part of the page.
       async function findMenuPdfUrl(pageUrl, logs) {
         const attempts = READERS.map((build) =>
           (async () => {
             const readerUrl = build(pageUrl);
             try {
-              const text = await fetchText(readerUrl, 15000);
+              const res = await withTimeout(fetch(readerUrl), 15000);
+              if (!res.ok) throw new Error("HTTP " + res.status);
+              const text = await res.text();
               const pdfUrl = findMenuPdf(text);
               log(
                 logs,
@@ -621,8 +656,9 @@
 
       async function loadEatery(r, logs) {
         const pdfUrl = await findMenuPdfUrl(r.page, logs);
-        const pdfText = await fetchReadable(pdfUrl, true, logs);
-        return splitByDays(stripImages(pdfText), r.stop);
+        const pdfBytes = await fetchBytes(pdfUrl, logs);
+        const pdfText = await extractPdfText(pdfBytes);
+        return splitByDays(pdfText, r.stop);
       }
 
       const LOADERS = {
