@@ -196,54 +196,6 @@
       .error a {
         color: var(--accent);
       }
-
-      /* --- Who's going where --- */
-      .vote-card {
-        max-width: 560px;
-        margin: 16px auto 0;
-        padding: 0 16px;
-      }
-      .vote-title {
-        font-family: "Fraunces", serif;
-        font-size: 17px;
-        margin: 0 0 8px;
-        display: block;
-      }
-      .name-input {
-        width: 100%;
-        font-family: "Inter", system-ui, sans-serif;
-        font-size: 15px;
-        padding: 10px 14px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        background: var(--card);
-        color: var(--ink);
-      }
-      .name-input:focus {
-        outline: none;
-        border-color: var(--accent);
-      }
-      .vote-hint {
-        font-size: 12px;
-        color: var(--muted);
-        margin: 8px 2px 0;
-      }
-
-      .card {
-        cursor: pointer;
-        border: 1px solid var(--line);
-        transition: border-color 0.15s ease;
-      }
-      .card.selected {
-        border-color: var(--accent);
-      }
-      .goers {
-        font-size: 12.5px;
-        font-weight: 500;
-        color: var(--sage);
-        margin-top: 4px;
-        min-height: 1em;
-      }
     </style>
   </head>
   <body>
@@ -255,27 +207,7 @@
       <button id="refresh" aria-label="Uppdatera">&#8635;</button>
     </header>
 
-    <section class="vote-card" id="vote-section">
-      <label class="vote-title" for="name-input">Vem är du?</label>
-      <input
-        type="text"
-        id="name-input"
-        class="name-input"
-        placeholder="Skriv ditt namn"
-        maxlength="30"
-        autocomplete="off"
-      />
-      <p class="vote-hint" id="vote-hint">
-        Klicka på en restaurang nedan för att visa att du går dit.
-      </p>
-    </section>
-
     <main id="cards"></main>
-
-    <!-- Firebase, used only for the voting feature. No account/login involved —
-     each visitor just gets a random anonymous id stored in localStorage. -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
     <!-- pdf.js reads Eatery Lund's PDF menu directly in the browser, so we're
      not dependent on a third-party reader service converting it for us. -->
@@ -286,11 +218,6 @@
         "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
       const DAYS = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"];
-
-      // Rebuilt on every loadAll() call, read by renderGoers() to reapply
-      // vote state to the fresh cards. Declared up here, before any code
-      // that could reference it, so there's no temporal-dead-zone crash.
-      let latestVotesData = null;
 
       const RESTAURANTS = [
         {
@@ -320,16 +247,15 @@
       // CORS (the site itself won't let a browser fetch it directly). We race
       // all of them and use whichever answers first with usable text.
       //
-      // None of the free ones are reliable on their own -- corsproxy.io now
-      // requires a paid key, and live testing showed r.jina.ai 401ing and
-      // codetabs timing out. So instead of trusting a single one, we race
-      // three independent proxies and only need one to work. If a menu still
-      // fails to load, each card's "Debug" section logs exactly which
-      // proxies were tried and how each one failed.
+      // None of the free ones are reliable on their own, so we race three
+      // independent proxies and only need one to work. If a menu still fails
+      // to load, each card's "Debug" section logs exactly which proxies were
+      // tried and how each one failed -- that's the fastest way to diagnose
+      // it further.
       const READERS = [
+        (url) => "https://api.cors.lol/?url=" + encodeURIComponent(url),
         (url) =>
           "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
-        (url) => "https://thingproxy.freeboard.io/fetch/" + url,
         (url) =>
           "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url),
       ];
@@ -345,7 +271,7 @@
       // structured-cloneable. Promise.race gives us the same "give up after N ms"
       // behavior for our purposes, at the cost of not actually cancelling the
       // underlying request (it keeps running in the background, we just stop
-      // waiting on it) — fine for small text fetches like these.
+      // waiting on it) — fine for small fetches like these.
       function withTimeout(promise, ms) {
         const timeout = new Promise((_, reject) =>
           setTimeout(() => reject(new Error("timeout after " + ms + "ms")), ms),
@@ -467,107 +393,71 @@
         return result;
       }
 
-      // Bricks Eatery lists several dishes per day, each starting with a category
-      // name directly followed by a price like "115:-" — split the block there.
-      // Eatery Lund's PDF has no per-item prices, just one dish per line. PDF
-      // text extraction usually keeps those line breaks, but not always — when
-      // it doesn't, everything collapses into one paragraph. As a fallback we
-      // split on Swedish sentence case: each dish starts with exactly one
-      // capitalized word followed by lowercase words, so a capitalized word
-      // appearing right after another word's lowercase ending marks a new dish.
+      // Both sources lay a day's menu out the same way once split into blocks
+      // (by a blank line for the HTML pages, by a single line break for the
+      // PDF): either a "Label 115:-" heading followed by its description, or
+      // a single plain block with no price at all (Kantin's daily special,
+      // Eatery's dishes, or an announcement like an apple pie giveaway).
+      // Pairing each price heading with the block right after it -- instead
+      // of grabbing everything up to the next price heading -- is what stops
+      // a trailing announcement from bleeding into the previous dish.
       function splitDishes(text) {
-        const clean = (s) =>
-          s
-            .replace(/[#*_>]/g, "")
-            .replace(/\s+/g, " ")
-            .trim();
+        const clean = (s) => s.replace(/\s+/g, " ").trim();
+        const priceHead =
+          /^([A-ZÅÄÖ][\wåäöÅÄÖ /-]{1,24})\s+(\d{2,3}:-)(?:\s*ink\.?\s*Kaffe\.?)?\s*$/;
 
-        // Find each "Label 115:-" marker with a *consuming* match rather than
-        // a zero-width lookahead split. This matters for multi-word labels
-        // like "World Wide 115:-": a lookahead just checks "does a valid
-        // label+price start here?" at every character position without ever
-        // consuming text, so it also matches starting at "Wide 115:-" a few
-        // characters later -- even though those characters already belong to
-        // the "World Wide" match -- and both positions become split points,
-        // slicing "World" off as its own orphan chunk. A consuming match
-        // can't do that: once it greedily matches "World Wide 115:-", the
-        // regex's lastIndex moves past those characters entirely, so the
-        // engine never re-checks "Wide" as a fresh starting point.
-        const priceRe = /[A-ZÅÄÖ][\wåäöÅÄÖ /-]{1,24}\s\d{2,3}:-/g;
-        const starts = [...text.matchAll(priceRe)].map((m) => m.index);
-        const byPrice = starts
-          .map((start, i) =>
-            text.slice(
-              start,
-              i + 1 < starts.length ? starts[i + 1] : text.length,
-            ),
-          )
+        let blocks = (/\n\s*\n/.test(text) ? text.split(/\n\s*\n/) : text.split(/\n+/))
           .map(clean)
           .filter(Boolean);
-        if (byPrice.length > 1) return byPrice;
 
-        // A genuine wrapped/mis-split remainder (e.g. "Padano" left behind
-        // from "Grana Padano") is short -- a word or two, no dish content of
-        // its own -- so fold any such short chunk back onto the previous one
-        // rather than treating it as a new dish. Shared by both fallbacks
-        // below since either can produce this kind of stray fragment.
-        function mergeShortFragments(chunks) {
+        // Worst case: no line breaks survived at all, so the whole day is one
+        // blob. Fall back to Swedish sentence case: each dish starts with
+        // exactly one capitalized word followed by lowercase words, so a
+        // capitalized word right after another word's lowercase ending marks
+        // a new dish. This can mistake a two-capitalized-word proper noun
+        // (e.g. "Grana Padano") for a new dish, so short fragments get folded
+        // back onto the previous one afterward.
+        if (blocks.length === 1 && !priceHead.test(blocks[0])) {
+          blocks = blocks[0]
+            .split(/(?<=[a-zåäö])\s+(?=[A-ZÅÄÖ][a-zåäö]+(?:\s|$))/)
+            .map(clean)
+            .filter(Boolean);
           const merged = [];
-          for (const chunk of chunks) {
-            const wordCount = chunk.split(/\s+/).length;
-            if (merged.length && wordCount <= 2 && chunk.length <= 20) {
-              merged[merged.length - 1] += " " + chunk;
-            } else {
-              merged.push(chunk);
-            }
+          for (const b of blocks) {
+            const short = b.split(" ").length <= 2 && b.length <= 20;
+            if (short && merged.length) merged[merged.length - 1] += " " + b;
+            else merged.push(b);
           }
-          return merged;
+          blocks = merged;
         }
 
-        const byLine = text.split(/\n+/).map(clean).filter(Boolean);
-        if (byLine.length > 1) return mergeShortFragments(byLine);
-
-        // Eatery Lund's PDF, as extracted by the reader proxy, has no
-        // newlines between dishes at all -- an entire day is one continuous
-        // paragraph. Fall back to Swedish sentence case: each dish starts
-        // with exactly one capitalized word followed by lowercase words, so
-        // a capitalized word right after another word's lowercase ending
-        // marks a new dish. This mistakes two-capitalized-word proper nouns
-        // like "Grana Padano" for a sentence boundary, which is exactly what
-        // mergeShortFragments cleans up afterward.
-        const bySentence = byLine[0]
-          .split(/(?<=[a-zåäö])\s+(?=[A-ZÅÄÖ][a-zåäö]+(?:\s|$))/)
-          .map(clean)
-          .filter(Boolean);
-        return mergeShortFragments(bySentence);
+        const dishes = [];
+        for (let i = 0; i < blocks.length; i++) {
+          const head = blocks[i].match(priceHead);
+          if (!head) {
+            dishes.push({ label: null, desc: blocks[i] });
+            continue;
+          }
+          const next = blocks[i + 1];
+          const desc = next && !priceHead.test(next) ? blocks[++i] : "";
+          dishes.push({ label: head[1], price: head[2], desc });
+        }
+        return dishes;
       }
 
-      // A dish chunk like "Green 115:- ink. Kaffe Frasig aubergine med ris..."
-      // becomes a { label, price, desc } row. Chunks without that pattern
-      // (e.g. Kantin's single daily dish) are rendered as plain text instead.
-      function parseDish(chunk) {
-        const m = chunk.match(
-          /^([A-ZÅÄÖ][a-zA-ZåäöÅÄÖ /]*?)\s+(\d{2,3}:-)\s*(?:ink\.?\s*Kaffe\.?)?\s*(.*)$/s,
-        );
-        if (!m) return { label: null, desc: chunk };
-        return { label: m[1].trim(), price: m[2], desc: m[3].trim() };
-      }
-
-      // Eatery Lund always has a 4th Thursday alternative on top of the usual
-      // three: pancakes with lightly whipped cream and homemade jam. The
-      // restaurant tweaks the description text now and then, so we only
+      // Eatery Lund always has a bonus alternative on top of the usual three
+      // dishes on some days -- pancakes on Thursday, something sweet on
+      // Tuesday. The restaurant tweaks the wording now and then, so we only
       // anchor on the "Pancake Thursday" heading itself to decide whether to
-      // gold-highlight the row -- if a 4th alternative ever shows up that
-      // isn't the pancake special, it renders like any other dish.
+      // gold-highlight the row.
       function isPancakeThursday(text) {
         return /pancake\s+thursday/i.test(text);
       }
 
       function dishesHtml(text) {
         return splitDishes(text)
-          .map((chunk) => {
-            const d = parseDish(chunk);
-            const goldClass = isPancakeThursday(chunk) ? " dish-pancake" : "";
+          .map((d) => {
+            const goldClass = isPancakeThursday(d.desc) ? " dish-pancake" : "";
             if (!d.label)
               return `<p class="dish-plain${goldClass}">${d.desc}</p>`;
             return `
@@ -581,7 +471,7 @@
 
       // Our readers just proxy the raw page HTML rather than converting it to
       // clean readable text, so we strip it down to plain text ourselves --
-      // the day/dish parsing below expects prose, not markup.
+      // the day/dish parsing above expects prose, not markup.
       function htmlToText(html) {
         const doc = new DOMParser().parseFromString(html, "text/html");
         doc.querySelectorAll("script, style, noscript, svg").forEach((el) => el.remove());
@@ -617,12 +507,6 @@
         return urls.find((u) => !/eng|cafe|café/i.test(u)) || null;
       }
 
-      // A single reader's "successful" fetch isn't enough here: r.jina.ai's
-      // readability extraction strips the "Menyer" section because it's just a
-      // few bare links with no surrounding text, which it mistakes for nav
-      // boilerplate. So instead of taking the first reader that returns any
-      // text, we check each reader's text for the actual pdf link and only
-      // move on if it's missing.
       // Try every reader at once and take whichever finds the pdf link
       // first — sequential attempts made this the slowest part of the page.
       async function findMenuPdfUrl(pageUrl, logs) {
@@ -679,7 +563,6 @@
         el.innerHTML = `
     <h2>${r.name}</h2>
     <a class="src" href="${r.page}" target="_blank" rel="noopener">${r.page}</a>
-    <p class="goers" data-goers></p>
     <div class="today-block"><p class="status">Laddar meny…</p></div>
   `;
         return el;
@@ -740,13 +623,6 @@
           const el = renderCard(r);
           container.appendChild(el);
 
-          // Whole card is clickable, except the source link (should just open the
-          // page) and the "Hela veckan" details/summary (should just expand).
-          el.addEventListener("click", (e) => {
-            if (e.target.closest("a, summary, details")) return;
-            toggleGoing(r.id);
-          });
-
           const logs = [];
           LOADERS[r.id](r, logs)
             .then((days) => {
@@ -756,10 +632,6 @@
             })
             .catch((err) => renderError(el, r, err, logs));
         });
-
-        // Cards were just rebuilt from scratch (e.g. refresh button) — reapply
-        // whatever goer state we already know about, since the DOM elements are new.
-        renderGoers(latestVotesData);
       }
 
       document.getElementById("today-date").textContent =
@@ -771,185 +643,6 @@
 
       document.getElementById("refresh").addEventListener("click", loadAll);
       loadAll();
-
-      // ============================================================
-      // --- Voting -------------------------------------------------
-      // ============================================================
-      //
-      // SETUP (one-time, do this in the Firebase console before this works):
-      //
-      // 1. Go to https://console.firebase.google.com -> "Add project" -> give it
-      //    any name (e.g. "lunch-voting") -> you can skip Google Analytics.
-      // 2. In the left sidebar: Build -> Realtime Database -> "Create Database".
-      //    Pick a region close to you (e.g. europe-west1), and start in
-      //    "locked mode" (we set our own rules below, next step).
-      // 3. Go to the "Rules" tab of the Realtime Database and paste:
-      //
-      //      {
-      //        "rules": {
-      //          "votes": {
-      //            "$date": {
-      //              ".read": true,
-      //              ".write": true
-      //            }
-      //          }
-      //        }
-      //      }
-      //
-      //    This scopes public read/write to ONLY the "votes" node, keyed by date.
-      //    Anyone with your config below can vote or clear votes -- that's the
-      //    deliberate trade-off for "no accounts, no backend".
-      // 4. Go to Project settings (gear icon) -> General -> scroll to
-      //    "Your apps" -> click the web icon (</>) -> register the app
-      //    (no hosting needed) -> copy the firebaseConfig object it gives you
-      //    and paste it below, replacing the placeholder.
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyB9n7njIWbS29IR9_GBrQrbHrjXCWFM0f8",
-        authDomain: "lunch-voting-c1664.firebaseapp.com",
-        databaseURL:
-          "https://lunch-voting-c1664-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "lunch-voting-c1664",
-        storageBucket: "lunch-voting-c1664.firebasestorage.app",
-        messagingSenderId: "552135684513",
-        appId: "1:552135684513:web:143407eea49662a49bdbe0",
-      };
-
-      // Anonymous per-browser id, NOT an account -- just enough so we know
-      // "this browser already picked a restaurant today" and can let it change
-      // its pick or show its name against a restaurant.
-      function voterId() {
-        let id = localStorage.getItem("lunchVoterId");
-        if (!id) {
-          id = "v-" + Math.random().toString(36).slice(2, 10);
-          localStorage.setItem("lunchVoterId", id);
-        }
-        return id;
-      }
-
-      function todayKey() {
-        return new Date().toISOString().slice(0, 10); // e.g. "2026-08-18"
-      }
-
-      let db = null;
-
-      function myName() {
-        return (localStorage.getItem("lunchUserName") || "").trim();
-      }
-
-      function toggleGoing(restaurantId) {
-        const name = myName();
-        if (!name) {
-          document.getElementById("name-input").focus();
-          document.getElementById("vote-hint").textContent =
-            "Skriv ditt namn högst upp först.";
-          return;
-        }
-        if (!db) {
-          document.getElementById("vote-hint").textContent =
-            "Kunde inte ansluta -- kolla instruktionerna i koden.";
-          return;
-        }
-
-        const me = voterId();
-        const alreadyHere = !!(
-          latestVotesData &&
-          latestVotesData[restaurantId] &&
-          latestVotesData[restaurantId][me] !== undefined
-        );
-
-        const updates = {};
-        // Clear this person from every restaurant first -- a single multi-path
-        // update, so there's no read-then-write race if someone taps twice fast.
-        RESTAURANTS.forEach((r) => {
-          updates[`votes/${todayKey()}/${r.id}/${me}`] = null;
-        });
-        // Clicking an already-selected card unmarks it; otherwise mark the new one.
-        if (!alreadyHere)
-          updates[`votes/${todayKey()}/${restaurantId}/${me}`] = name;
-        db.ref().update(updates);
-      }
-
-      function renderGoers(data) {
-        latestVotesData = data;
-        const me = voterId();
-        let myRestaurantName = null;
-
-        RESTAURANTS.forEach((r) => {
-          const namesByVoter = (data && data[r.id]) || {};
-          const names = Object.values(namesByVoter);
-          const cardEl = document.querySelector(`.card[data-id="${r.id}"]`);
-          if (!cardEl) return; // not built yet -- renderGoers gets re-run once it is
-
-          const goersEl = cardEl.querySelector("[data-goers]");
-          if (goersEl) {
-            goersEl.textContent = names.length
-              ? `Går hit: ${names.join(", ")}`
-              : "";
-          }
-
-          const iAmHere = namesByVoter[me] !== undefined;
-          cardEl.classList.toggle("selected", iAmHere);
-          if (iAmHere) myRestaurantName = r.name;
-        });
-
-        const hint = document.getElementById("vote-hint");
-        if (hint) {
-          hint.textContent = myRestaurantName
-            ? `Du går till ${myRestaurantName}. Klicka igen för att avmarkera.`
-            : "Klicka på en restaurang för att visa att du går dit.";
-        }
-      }
-
-      function initNameInput() {
-        const nameInput = document.getElementById("name-input");
-        nameInput.value = myName();
-
-        nameInput.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") nameInput.blur();
-        });
-
-        nameInput.addEventListener("change", () => {
-          const name = nameInput.value.trim();
-          localStorage.setItem("lunchUserName", name);
-
-          // If this person already has a pick for today, keep the displayed
-          // name in sync rather than requiring them to re-click their restaurant.
-          if (!db || !name || !latestVotesData) return;
-          const me = voterId();
-          RESTAURANTS.forEach((r) => {
-            if (
-              latestVotesData[r.id] &&
-              latestVotesData[r.id][me] !== undefined
-            ) {
-              db.ref(`votes/${todayKey()}/${r.id}/${me}`).set(name);
-            }
-          });
-        });
-      }
-
-      function initVoting() {
-        initNameInput();
-
-        if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-          document.getElementById("vote-hint").textContent =
-            "Detta är inte konfigurerat ännu (se instruktioner i koden).";
-          return;
-        }
-        try {
-          firebase.initializeApp(firebaseConfig);
-          db = firebase.database();
-          db.ref(`votes/${todayKey()}`).on("value", (snap) =>
-            renderGoers(snap.val()),
-          );
-        } catch (e) {
-          console.error("voting init failed", e);
-          document.getElementById("vote-hint").textContent =
-            "Kunde inte ladda vem som går vart.";
-        }
-      }
-
-      initVoting();
     </script>
   </body>
 </html>
