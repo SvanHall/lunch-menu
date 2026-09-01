@@ -1,16 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 256 256">
-  <defs>
-    <style>
-      .stroke { stroke: #DA291C; fill: none; stroke-width: 20; stroke-linecap: round; stroke-linejoin: round; }
-    </style>
-  </defs>
-
-  <!-- Map pin outline -->
-  <path class="stroke" d="M128 20c-48 0-88 38-88 86 0 62 88 130 88 130s88-68 88-130c0-48-40-86-88-86z"/>
-
-  <!-- Fork -->
-  <path class="stroke" d="M100 90v60M100 90l-10 0M100 90l10 0M90 150h20"/>
-
-  <!-- Knife -->
-  <path class="stroke" d="M150 90l0 60c0 10 20 10 20 0l0-60z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <circle cx="16" cy="16" r="16" fill="#e15a3c" />
+  <g stroke="#faf6ee" stroke-width="2" stroke-linecap="round" fill="none">
+    <line x1="10" y1="8" x2="10" y2="24" />
+    <line x1="8" y1="8" x2="8" y2="14" />
+    <line x1="12" y1="8" x2="12" y2="14" />
+    <path d="M8 14c0 2 1 2 2 2s2 0 2-2" />
+    <path d="M22 8c-2 0-3 2-3 5s1 5 3 5v6" />
+  </g>
 </svg>
