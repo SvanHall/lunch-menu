@@ -113,6 +113,9 @@
         font-size: 14px;
         padding: 6px 0;
       }
+      .stale {
+        color: var(--gold);
+      }
       details {
         margin-top: 14px;
         border-top: 1px solid var(--line);
@@ -209,240 +212,18 @@
 
     <main id="cards"></main>
 
-    <!-- pdf.js reads Eatery Lund's PDF menu directly in the browser, so we're
-     not dependent on a third-party reader service converting it for us. -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
     <script>
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
+      // menu.json is written once a day by a GitHub Action (see
+      // scripts/update-menu.mjs) that fetches and parses all three sites
+      // server-side. Because that happens outside a browser, there's no CORS
+      // involved at all -- this page only ever fetches its own origin.
+      const MENU_URL = "./menu.json";
+      const RESTAURANT_ORDER = ["bricks", "eatery", "kantin"];
       const DAYS = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"];
 
-      const RESTAURANTS = [
-        {
-          id: "bricks",
-          name: "Bricks Eatery",
-          page: "https://brickseatery.se/lunch/",
-          stop: "VÅRA ÖPPETTIDER",
-          kind: "html",
-        },
-        {
-          id: "eatery",
-          name: "Eatery Lund",
-          page: "https://eatery.se/anlaggningar/lund",
-          stop: "GENERÖS SALLADSBUFFÉ",
-          kind: "pdf",
-        },
-        {
-          id: "kantin",
-          name: "Kantin Lund",
-          page: "https://www.kantinlund.se/",
-          stop: "Hitta till",
-          kind: "html",
-        },
-      ];
-
-      // Reader proxies convert a page into plain readable text, sidestepping
-      // CORS (the site itself won't let a browser fetch it directly). We race
-      // all of them and use whichever answers first with usable text.
-      //
-      // None of the free ones are reliable on their own, so we race three
-      // independent proxies and only need one to work. If a menu still fails
-      // to load, each card's "Debug" section logs exactly which proxies were
-      // tried and how each one failed -- that's the fastest way to diagnose
-      // it further.
-      const READERS = [
-        (url) => "https://api.cors.lol/?url=" + encodeURIComponent(url),
-        (url) =>
-          "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
-        (url) =>
-          "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url),
-      ];
-
-      // The timeout has to cover reading the response body too, not just the
-      // initial connection — a proxy can accept the request and then stall
-      // mid-stream, and without this res.text() would hang indefinitely.
-      //
-      // NOTE: this intentionally does NOT use AbortController/AbortSignal. Some
-      // browser setups (extensions or sandboxed embeds that patch window.fetch
-      // and relay it via postMessage) throw "AbortSignal object could not be
-      // cloned" the moment a signal is passed in, because AbortSignal isn't
-      // structured-cloneable. Promise.race gives us the same "give up after N ms"
-      // behavior for our purposes, at the cost of not actually cancelling the
-      // underlying request (it keeps running in the background, we just stop
-      // waiting on it) — fine for small fetches like these.
-      function withTimeout(promise, ms) {
-        const timeout = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("timeout after " + ms + "ms")), ms),
-        );
-        return Promise.race([promise, timeout]);
-      }
-
-      // Debug trail: each restaurant gets its own log array, printed to the
-      // console and, on failure, shown right in the error card — so we can see
-      // which fetch step broke without needing devtools on a phone.
-      function log(logs, msg) {
-        logs.push(msg);
-        console.log(msg);
-      }
-
-      function escapeRegExp(s) {
-        return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      }
-
-      // Case-insensitive "first index of, searching from a given position" --
-      // used to find where a stop word (e.g. "ÖPPETTIDER") appears after the
-      // last day heading, so we know where to cut the menu off. We search
-      // forward from that position rather than taking the stop word's LAST
-      // occurrence anywhere on the page: some pages repeat it again further
-      // down (e.g. a footer nav link after the visible "VÅRA ÖPPETTIDER"
-      // block), and taking that final occurrence would push the cutoff past
-      // the whole footer/contact block, pulling it into the last day's menu.
-      function firstIndexAfter(text, needle, from) {
-        const re = new RegExp(escapeRegExp(needle), "gi");
-        re.lastIndex = from;
-        const m = re.exec(text);
-        return m ? m.index : -1;
-      }
-
-      // Races every reader and returns whichever gives usable text first.
-      async function fetchReadable(url, logs = []) {
-        const attempts = READERS.map(async (build) => {
-          const readerUrl = build(url);
-          try {
-            const res = await withTimeout(fetch(readerUrl), 15000);
-            if (!res.ok) throw new Error("HTTP " + res.status);
-            const text = await res.text();
-            log(logs, `fetch ${readerUrl} -> ${text.length} chars`);
-            if (text.length <= 80) throw new Error("response too short");
-            return text;
-          } catch (e) {
-            log(logs, `fetch ${readerUrl} -> ${e.message}`);
-            throw e;
-          }
-        });
-
-        try {
-          return await Promise.any(attempts);
-        } catch (e) {
-          throw new Error("could not fetch " + url);
-        }
-      }
-
-      // Same idea as fetchReadable, but keeps the response as raw bytes --
-      // used for the PDF, which pdf.js needs untouched rather than decoded
-      // as text (decoding a PDF's binary content as text would corrupt it).
-      async function fetchBytes(url, logs = []) {
-        const attempts = READERS.map(async (build) => {
-          const readerUrl = build(url);
-          try {
-            const res = await withTimeout(fetch(readerUrl), 20000);
-            if (!res.ok) throw new Error("HTTP " + res.status);
-            const buf = await res.arrayBuffer();
-            log(logs, `fetch ${readerUrl} -> ${buf.byteLength} bytes`);
-            if (buf.byteLength < 1000) throw new Error("response too small");
-            return buf;
-          } catch (e) {
-            log(logs, `fetch ${readerUrl} -> ${e.message}`);
-            throw e;
-          }
-        });
-
-        try {
-          return await Promise.any(attempts);
-        } catch (e) {
-          throw new Error("could not fetch " + url);
-        }
-      }
-
-      // The menu pages just list "Måndag ... Tisdag ... Fredag" as plain text with
-      // no machine-readable structure, so we find each day name and take everything
-      // up to the next one (or a stop word marking the end of the menu section).
-      function splitByDays(text, stopWord) {
-        const hits = DAYS.map((day) => {
-          const re = new RegExp(day, "i");
-          const m = re.exec(text);
-          return m ? { day, pos: m.index } : null;
-        })
-          .filter(Boolean)
-          .sort((a, b) => a.pos - b.pos);
-
-        if (hits.length === 0) return {};
-
-        // Only trim trailing content if a stop word actually appears after
-        // the last day heading — pages without one (or where it's missing)
-        // just keep everything to the end.
-        let end = text.length;
-        if (stopWord) {
-          const cut = firstIndexAfter(
-            text,
-            stopWord,
-            hits[hits.length - 1].pos,
-          );
-          if (cut !== -1) end = cut;
-        }
-
-        const result = {};
-        hits.forEach((h, i) => {
-          const segEnd = i + 1 < hits.length ? hits[i + 1].pos : end;
-          let block = text.slice(h.pos + h.day.length, segEnd).trim();
-          block = block.replace(/^[\s:–-]*\d{1,2}\/\d{1,2}\s*/, ""); // e.g. "17/8" after "Måndag"
-          result[h.day] = block;
-        });
-        return result;
-      }
-
-      // Both sources lay a day's menu out the same way once split into blocks
-      // (by a blank line for the HTML pages, by a single line break for the
-      // PDF): either a "Label 115:-" heading followed by its description, or
-      // a single plain block with no price at all (Kantin's daily special,
-      // Eatery's dishes, or an announcement like an apple pie giveaway).
-      // Pairing each price heading with the block right after it -- instead
-      // of grabbing everything up to the next price heading -- is what stops
-      // a trailing announcement from bleeding into the previous dish.
-      function splitDishes(text) {
-        const clean = (s) => s.replace(/\s+/g, " ").trim();
-        const priceHead =
-          /^([A-ZÅÄÖ][\wåäöÅÄÖ /-]{1,24})\s+(\d{2,3}:-)(?:\s*ink\.?\s*Kaffe\.?)?\s*$/;
-
-        let blocks = (/\n\s*\n/.test(text) ? text.split(/\n\s*\n/) : text.split(/\n+/))
-          .map(clean)
-          .filter(Boolean);
-
-        // Worst case: no line breaks survived at all, so the whole day is one
-        // blob. Fall back to Swedish sentence case: each dish starts with
-        // exactly one capitalized word followed by lowercase words, so a
-        // capitalized word right after another word's lowercase ending marks
-        // a new dish. This can mistake a two-capitalized-word proper noun
-        // (e.g. "Grana Padano") for a new dish, so short fragments get folded
-        // back onto the previous one afterward.
-        if (blocks.length === 1 && !priceHead.test(blocks[0])) {
-          blocks = blocks[0]
-            .split(/(?<=[a-zåäö])\s+(?=[A-ZÅÄÖ][a-zåäö]+(?:\s|$))/)
-            .map(clean)
-            .filter(Boolean);
-          const merged = [];
-          for (const b of blocks) {
-            const short = b.split(" ").length <= 2 && b.length <= 20;
-            if (short && merged.length) merged[merged.length - 1] += " " + b;
-            else merged.push(b);
-          }
-          blocks = merged;
-        }
-
-        const dishes = [];
-        for (let i = 0; i < blocks.length; i++) {
-          const head = blocks[i].match(priceHead);
-          if (!head) {
-            dishes.push({ label: null, desc: blocks[i] });
-            continue;
-          }
-          const next = blocks[i + 1];
-          const desc = next && !priceHead.test(next) ? blocks[++i] : "";
-          dishes.push({ label: head[1], price: head[2], desc });
-        }
-        return dishes;
+      function todayName() {
+        const jsDay = new Date().getDay(); // 0 = Sunday
+        return jsDay >= 1 && jsDay <= 5 ? DAYS[jsDay - 1] : null;
       }
 
       // Eatery Lund always has a bonus alternative on top of the usual three
@@ -454,8 +235,8 @@
         return /pancake\s+thursday/i.test(text);
       }
 
-      function dishesHtml(text) {
-        return splitDishes(text)
+      function dishesHtml(dishes) {
+        return dishes
           .map((d) => {
             const goldClass = isPancakeThursday(d.desc) ? " dish-pancake" : "";
             if (!d.label)
@@ -469,114 +250,28 @@
           .join("");
       }
 
-      // Our readers just proxy the raw page HTML rather than converting it to
-      // clean readable text, so we strip it down to plain text ourselves --
-      // the day/dish parsing above expects prose, not markup.
-      function htmlToText(html) {
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        doc.querySelectorAll("script, style, noscript, svg").forEach((el) => el.remove());
-        return doc.body.textContent.replace(/\n{3,}/g, "\n\n").trim();
-      }
-
-      async function loadHtml(r, logs) {
-        const html = await fetchReadable(r.page, logs);
-        return splitByDays(htmlToText(html), r.stop);
-      }
-
-      // Loads a PDF's pages with pdf.js and joins their text content. hasEOL
-      // marks the end of a visual line in the original layout, so we use it
-      // to rebuild line breaks -- without them, splitDishes has no way to
-      // tell where one dish ends and the next begins.
-      async function extractPdfText(buf) {
-        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-        let text = "";
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          text += content.items.map((it) => it.str + (it.hasEOL ? "\n" : " ")).join("");
-          text += "\n";
-        }
-        return text;
-      }
-
-      // Eatery Lund states the menu as a linked PDF rather than page text. Scan
-      // the page text for any .pdf URL and pick the Swedish one — the site also
-      // links an English and a café menu, so those are excluded.
-      function findMenuPdf(text) {
-        const urls = text.match(/https?:\/\/[^\s")]+\.pdf[^\s")]*/gi) || [];
-        return urls.find((u) => !/eng|cafe|café/i.test(u)) || null;
-      }
-
-      // Try every reader at once and take whichever finds the pdf link
-      // first — sequential attempts made this the slowest part of the page.
-      async function findMenuPdfUrl(pageUrl, logs) {
-        const attempts = READERS.map((build) =>
-          (async () => {
-            const readerUrl = build(pageUrl);
-            try {
-              const res = await withTimeout(fetch(readerUrl), 15000);
-              if (!res.ok) throw new Error("HTTP " + res.status);
-              const text = await res.text();
-              const pdfUrl = findMenuPdf(text);
-              log(
-                logs,
-                `fetch ${readerUrl} -> ${text.length} chars, pdf link: ${pdfUrl || "none"}`,
-              );
-              if (!pdfUrl) throw new Error("no pdf link");
-              return pdfUrl;
-            } catch (e) {
-              log(logs, `fetch ${readerUrl} -> ${e.message}`);
-              throw e;
-            }
-          })(),
-        );
-
-        try {
-          return await Promise.any(attempts);
-        } catch (e) {
-          throw new Error("menu link not found in any reader");
-        }
-      }
-
-      async function loadEatery(r, logs) {
-        const pdfUrl = await findMenuPdfUrl(r.page, logs);
-        const pdfBytes = await fetchBytes(pdfUrl, logs);
-        const pdfText = await extractPdfText(pdfBytes);
-        return splitByDays(pdfText, r.stop);
-      }
-
-      const LOADERS = {
-        bricks: loadHtml,
-        eatery: loadEatery,
-        kantin: loadHtml,
-      };
-
-      function todayName() {
-        const jsDay = new Date().getDay(); // 0 = Sunday
-        return jsDay >= 1 && jsDay <= 5 ? DAYS[jsDay - 1] : null;
-      }
-
       function renderCard(r) {
         const el = document.createElement("div");
         el.className = "card";
-        el.dataset.id = r.id;
         el.innerHTML = `
     <h2>${r.name}</h2>
     <a class="src" href="${r.page}" target="_blank" rel="noopener">${r.page}</a>
-    <div class="today-block"><p class="status">Laddar meny…</p></div>
+    <div class="today-block"></div>
   `;
-        return el;
-      }
 
-      function renderMenu(el, days) {
         const today = todayName();
         const block = el.querySelector(".today-block");
-        block.innerHTML = "";
+        const days = r.days || {};
+
+        if (Object.keys(days).length === 0) {
+          block.innerHTML = `<p class="status error">Ingen meny tillgänglig just nu.
+      <a href="${r.page}" target="_blank" rel="noopener">Öppna sidan</a> istället.</p>`;
+          return el;
+        }
 
         if (today && days[today]) {
           block.innerHTML =
-            `<span class="today-label">${today}</span>` +
-            dishesHtml(days[today]);
+            `<span class="today-label">${today}</span>` + dishesHtml(days[today]);
         } else if (!today) {
           block.innerHTML = `<p class="status">Stängt i helgen — här är veckans meny.</p>`;
         } else {
@@ -584,9 +279,7 @@
         }
 
         const todayIndex = DAYS.indexOf(today);
-        const rest = DAYS.filter(
-          (d, i) => days[d] && (todayIndex === -1 || i > todayIndex),
-        );
+        const rest = DAYS.filter((d, i) => days[d] && (todayIndex === -1 || i > todayIndex));
 
         if (rest.length) {
           const details = document.createElement("details");
@@ -600,37 +293,42 @@
           });
           el.appendChild(details);
         }
-      }
 
-      function renderError(el, r, err, logs) {
-        const block = el.querySelector(".today-block");
-        block.innerHTML = `<p class="status error">Kunde inte hämta menyn just nu.
-    <a href="${r.page}" target="_blank" rel="noopener">Öppna sidan</a> istället.</p>
-    <p class="status" style="font-size:11px">${err ? err.message : ""}</p>`;
-
-        if (logs && logs.length) {
-          const details = document.createElement("details");
-          details.innerHTML = `<summary>Debug</summary>
-      <p class="status" style="font-size:11px; white-space:pre-wrap">${logs.join("\n")}</p>`;
-          block.appendChild(details);
+        // updatedAt is missing only for the placeholder seed file, and older
+        // than a couple of days means the daily Action itself has stopped
+        // running -- both are worth a visible nudge rather than failing silently.
+        const staleAfterMs = 2 * 24 * 60 * 60 * 1000;
+        const isStale = !r.updatedAt || Date.now() - new Date(r.updatedAt) > staleAfterMs;
+        if (isStale) {
+          const notice = document.createElement("p");
+          notice.className = "status stale";
+          notice.textContent = r.updatedAt
+            ? `Menyn uppdaterades senast ${new Date(r.updatedAt).toLocaleDateString("sv-SE")}.`
+            : "Menyn har inte hämtats ännu.";
+          el.appendChild(notice);
         }
+
+        return el;
       }
 
       async function loadAll() {
         const container = document.getElementById("cards");
-        container.innerHTML = "";
-        RESTAURANTS.forEach((r) => {
-          const el = renderCard(r);
-          container.appendChild(el);
+        container.innerHTML = `<p class="status">Laddar meny…</p>`;
 
-          const logs = [];
-          LOADERS[r.id](r, logs)
-            .then((days) => {
-              if (Object.keys(days).length === 0)
-                throw new Error("no days parsed");
-              renderMenu(el, days);
-            })
-            .catch((err) => renderError(el, r, err, logs));
+        let data;
+        try {
+          const res = await fetch(MENU_URL, { cache: "no-store" });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          data = await res.json();
+        } catch (e) {
+          container.innerHTML = `<p class="status error">Kunde inte läsa menyn (${e.message}).</p>`;
+          return;
+        }
+
+        container.innerHTML = "";
+        RESTAURANT_ORDER.forEach((id) => {
+          const r = data.restaurants[id];
+          if (r) container.appendChild(renderCard(r));
         });
       }
 
