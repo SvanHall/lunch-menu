@@ -1,8 +1,0 @@
-{
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "cheerio": "^1.0.0",
-    "pdf-parse": "1.1.1"
-  }
-}
