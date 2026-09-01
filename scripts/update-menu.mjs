@@ -102,45 +102,40 @@ function mergeWrappedLines(blocks) {
 // previous dish.
 function splitDishes(text) {
   const clean = (s) => s.replace(/\s+/g, " ").trim();
-  const priceHead =
-    /^([A-ZÅÄÖ][\wåäöÅÄÖ /-]{1,24})\s+(\d{2,3}:-)(?:\s*ink\.?\s*Kaffe\.?)?\s*$/;
 
+  // Split into blocks by blank lines or single newlines
   let blocks = (/\n\s*\n/.test(text) ? text.split(/\n\s*\n/) : text.split(/\n+/))
     .map(clean)
     .filter(Boolean);
+
   blocks = mergeWrappedLines(blocks);
 
-  // Worst case: no line breaks survived at all, so the whole day is one
-  // blob. Fall back to Swedish sentence case: each dish starts with exactly
-  // one capitalized word followed by lowercase words, so a capitalized word
-  // right after another word's lowercase ending marks a new dish. This can
-  // mistake a two-capitalized-word proper noun (e.g. "Grana Padano") for a
-  // new dish, so short fragments get folded back onto the previous one.
-  if (blocks.length === 1 && !priceHead.test(blocks[0])) {
-    blocks = blocks[0]
-      .split(/(?<=[a-zåäö])\s+(?=[A-ZÅÄÖ][a-zåäö]+(?:\s|$))/)
-      .map(clean)
-      .filter(Boolean);
-    const merged = [];
-    for (const b of blocks) {
-      const short = b.split(" ").length <= 2 && b.length <= 20;
-      if (short && merged.length) merged[merged.length - 1] += " " + b;
-      else merged.push(b);
-    }
-    blocks = merged;
-  }
-
   const dishes = [];
-  for (let i = 0; i < blocks.length; i++) {
-    const head = blocks[i].match(priceHead);
-    if (!head) {
-      dishes.push({ label: null, desc: blocks[i] });
+  let current = null;
+
+  const isLabel = (b) => /^[A-ZÅÄÖ][\wåäöÅÄÖ /-]*$/.test(b);
+  const isPrice = (b) => /\d{2,3}:-/.test(b);
+
+  for (const b of blocks) {
+    if (isLabel(b)) {
+      // Start a new dish
+      if (current) dishes.push(current);
+      current = { label: b, price: null, desc: "" };
       continue;
     }
-    const next = blocks[i + 1];
-    const desc = next && !priceHead.test(next) ? blocks[++i] : "";
-    dishes.push({ label: head[1], price: head[2], desc });
+
+    if (current && isPrice(b)) {
+      current.price = b;
+      continue;
+    }
+
+    if (current) {
+      current.desc += (current.desc ? " " : "") + b;
+    }
   }
+
+  if (current) dishes.push(current);
+
   return dishes;
 }
 
