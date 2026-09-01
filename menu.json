@@ -1,0 +1,8 @@
+{
+  "generatedAt": null,
+  "restaurants": {
+    "bricks": { "name": "Bricks Eatery", "page": "https://brickseatery.se/lunch/", "days": {} },
+    "eatery": { "name": "Eatery Lund", "page": "https://eatery.se/anlaggningar/lund", "days": {} },
+    "kantin": { "name": "Kantin Lund", "page": "https://www.kantinlund.se/", "days": {} }
+  }
+}
