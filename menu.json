@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-01T07:12:29.192Z",
+  "generatedAt": "2026-09-01T07:17:41.620Z",
   "restaurants": {
     "bricks": {
       "name": "Bricks Eatery",
@@ -7,130 +7,330 @@
       "days": {
         "Måndag": [
           {
-            "label": "Green",
-            "price": "115:- ink. Kaffe Majs och halloumifritter med ris, chilimajonnäs, pickles och purjolök",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "Green"
           },
           {
-            "label": "Local",
-            "price": "115:- ink. Kaffe Isterband med gräddstuvad potatis, rödbetor, picklade senapsfrön och persilja",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Majs och halloumifritter med ris, chilimajonnäs, pickles och purjolök"
           },
           {
-            "label": "World wide",
-            "price": "115:- ink. Kaffe Chilirostad kycklinglårfilé med ris, gurka, böngroddar och rostad sesammajonnäs",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "Local"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Isterband med gräddstuvad potatis, rödbetor, picklade senapsfrön och persilja"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "World wide"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Chilirostad kycklinglårfilé med ris, gurka, böngroddar och rostad sesammajonnäs"
           }
         ],
         "Tisdag": [
           {
-            "label": "Green",
-            "price": "115:- ink. Kaffe Spenat och ricotta tortellini med tomatsås, lagrad ost, aubergine och ruccola",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "Green"
           },
           {
-            "label": "World Wide",
-            "price": "115:- ink. Kaffe Orange chicken - apelsinsås, ingefära, chili, ostronsås, böngroddar, vårlök och sesam",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Spenat och ricotta tortellini med tomatsås, lagrad ost, aubergine och ruccola"
           },
           {
-            "label": "Pizza",
-            "price": "115:- ink. Kaffe Mozzarella, creme- fraiche, kantarell, italiensk hårdost och gräslök",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "World Wide"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Orange chicken - apelsinsås, ingefära, chili, ostronsås, böngroddar, vårlök och sesam"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Pizza"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Mozzarella, creme- fraiche, kantarell, italiensk hårdost och gräslök"
           }
         ],
         "Onsdag": [
           {
-            "label": "Green",
-            "price": "115:- ink. Kaffe Bondomelett med krämig coleslaw, valnötter, romansallad, rädisa och gurka",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "Green"
           },
           {
-            "label": "Local",
-            "price": "115:- ink. Kaffe Stekt sill med klassiska tillbehör",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Bondomelett med krämig coleslaw, valnötter, romansallad, rädisa och gurka"
           },
           {
-            "label": "World wide",
-            "price": "115:- ink. Kaffe Bibimbap med blandat kött, ostronsås, pickles, kimchisallad, ris och stekt ägg",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "Local"
           },
           {
-            "label": "Pizza",
-            "price": "115:- ink. Kaffe Mozzarella, creme- fraiche, kantarell, italiensk hårdost och gräslök",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Stekt sill med klassiska tillbehör"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "World wide"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Bibimbap med blandat kött, ostronsås, pickles, kimchisallad, ris och stekt ägg"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Pizza"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Mozzarella, creme- fraiche, kantarell, italiensk hårdost och gräslök"
           }
         ],
         "Torsdag": [
           {
-            "label": "Green",
-            "price": "115:- ink. Kaffe Grönsakswok med soja, chili, hoisinsås, böngroddar, ris och stekt ägg",
-            "desc": ""
-          },
-          {
-            "label": "Local",
-            "price": "115:- ink. Kaffe Pannbiff med stekt lök, potatismos, lingon, timjansky, morot och persilja",
-            "desc": ""
-          },
-          {
-            "label": "Pizza",
-            "price": "115:- ink. Kaffe Mozzarella, creme- fraiche, kantarell, italiensk hårdost och gräslök",
-            "desc": ""
-          },
-          {
-            "label": "Äppelpaj",
+            "label": null,
             "price": null,
-            "desc": ""
+            "desc": "Green"
           },
           {
-            "label": "Vi bjuder våra lunchgäster på äppelpaj med grädde",
+            "label": null,
             "price": null,
-            "desc": ""
+            "desc": "115:- ink. Kaffe Grönsakswok med soja, chili, hoisinsås, böngroddar, ris och stekt ägg"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Local"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Pannbiff med stekt lök, potatismos, lingon, timjansky, morot och persilja"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Pizza"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Mozzarella, creme- fraiche, kantarell, italiensk hårdost och gräslök"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Äppelpaj"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Vi bjuder våra lunchgäster på äppelpaj med grädde"
           }
         ],
         "Fredag": [
           {
-            "label": "Green",
-            "price": "115:- ink. Kaffe Ost och lökpaj med coleslaw, rostad blomkål, bladspenat och picklad rödlök",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "Green"
           },
           {
-            "label": "Local",
-            "price": "115:- ink. Kaffe Schnitzel med kryddsmör, rostad potatis, ärtor, spetskål, citron och skysås",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Ost och lökpaj med coleslaw, rostad blomkål, bladspenat och picklad rödlök"
           },
           {
-            "label": "World wide",
-            "price": "115:- ink. Kaffe Oxbringa med gnocchi, citrongrädde, bakad purjolök, lagrad ost och ruccola",
-            "desc": ""
+            "label": null,
+            "price": null,
+            "desc": "Local"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Schnitzel med kryddsmör, rostad potatis, ärtor, spetskål, citron och skysås"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "World wide"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "115:- ink. Kaffe Oxbringa med gnocchi, citrongrädde, bakad purjolök, lagrad ost och ruccola"
           }
         ]
       },
-      "updatedAt": "2026-09-01T07:12:27.501Z"
+      "updatedAt": "2026-09-01T07:17:39.876Z"
     },
     "eatery": {
       "name": "Eatery Lund",
       "page": "https://eatery.se/anlaggningar/lund",
       "days": {
-        "Måndag": [],
-        "Tisdag": [],
-        "Onsdag": [],
-        "Torsdag": [],
-        "Fredag": []
+        "Måndag": [
+          {
+            "label": null,
+            "price": null,
+            "desc": "Ostpanerad fläskschnitzel med basilika och tomatsås, rostad zucchinisallad, buljongkokt ris"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Pocherad kummel, skirat smör, pepparrot, rödbetor, kapris & potatispuré"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Zucchinifritters med rostad klyftpotatis, tzatziki & picklad paprika"
+          }
+        ],
+        "Tisdag": [
+          {
+            "label": null,
+            "price": null,
+            "desc": "Örtbakad fläskkarré med råstekt potatis & pepparsås, rostad pumpa med fänkål"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Chilibakad sejfilé, hummersås, räkor, picklad fänkål & örtslungad potatis"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Linscurry med rostad paprika, jasminris & marinerad rödkålssallad"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Sweet Tuesday: Vi bjuder på något sött till kaffet!"
+          }
+        ],
+        "Onsdag": [
+          {
+            "label": null,
+            "price": null,
+            "desc": "Pannbiff med stekt lök, pressgurka, skysås och kokt potatis"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Räkmacka med äggröra, avokado, dillmajo och potatissallad"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Vegetarisk lasagne med Grana Padano & ruccola"
+          }
+        ],
+        "Torsdag": [
+          {
+            "label": null,
+            "price": null,
+            "desc": "Mexikansk “Asado de Puerco” gryta på fläskkött, ancho chili, salsa verde & basmatiris, picklad morot"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Vannameiräkor i krämig tomatsås med soltorkad tomat, babyspenat & picklad fänkål, linguine med chili och vitlök"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Krämig jordärtskockssoppa, gräslök & persiljeolja, rostad blomkål och krispig lök"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Pancake Thursday: Vi bjuder på pannkakor, lättvispad grädde och hemmagjord sylt!"
+          }
+        ],
+        "Fredag": [
+          {
+            "label": null,
+            "price": null,
+            "desc": "Krispig kycklingburgare med chipotle och jalapeno majo, sötpotatispommes och lagrad ost, krispig kålsallad med lime och mango"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Friterad kummel med dillmajonnäs, picklade grönsaker & kokt potatis med smör och gräslök"
+          },
+          {
+            "label": null,
+            "price": null,
+            "desc": "Bakad aubergine med salladsost, pesto, matvete och krispig rotfrukt, pumpafrö"
+          }
+        ]
       },
-      "updatedAt": "2026-09-01T07:12:28.532Z"
+      "updatedAt": "2026-09-01T07:17:40.840Z"
     },
     "kantin": {
       "name": "Kantin Lund",
       "page": "https://www.kantinlund.se/",
       "days": {
-        "Måndag": [],
-        "Tisdag": [],
-        "Onsdag": [],
-        "Torsdag": [],
-        "Fredag": []
+        "Måndag": [
+          {
+            "label": null,
+            "price": null,
+            "desc": "Kalv tri-tip – bakad tomat – potatis & vitlöksstomp – borettanalök – sky – rostad lök – ört"
+          }
+        ],
+        "Tisdag": [
+          {
+            "label": null,
+            "price": null,
+            "desc": "Nattbakad fläsksida – dillpickles hot sauce – blomkål – kål & äppleslaw – frön – potatis"
+          }
+        ],
+        "Onsdag": [
+          {
+            "label": null,
+            "price": null,
+            "desc": "Kycklingsteak – chilimayo – tomat & bönsalsa – paksoi – sky- potatis"
+          }
+        ],
+        "Torsdag": [
+          {
+            "label": null,
+            "price": null,
+            "desc": "Råbiffstorsdag – Oxtartar – tryffelaioli – rostad broccoli – picklad lök – parmesan – frön – krasse"
+          }
+        ],
+        "Fredag": [
+          {
+            "label": null,
+            "price": null,
+            "desc": "Nattbakad oxkind – dragonmajo – rostad morot – pickles – chilisky – potatis – ört"
+          }
+        ]
       },
-      "updatedAt": "2026-09-01T07:12:29.192Z"
+      "updatedAt": "2026-09-01T07:17:41.619Z"
     }
   }
 }
