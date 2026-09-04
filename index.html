@@ -77,42 +77,70 @@
         padding: 16px 16px 60px;
       }
       .card {
-        --restaurant: var(--sage);
-        --restaurant-wash: #f4f8f3;
-        background: linear-gradient(180deg, var(--restaurant-wash) 0%, var(--card) 42%);
-        border: 1px solid color-mix(in srgb, var(--restaurant) 28%, var(--line));
-        border-top: 4px solid var(--restaurant);
+        --restaurant: #334e68;
+        --restaurant-wash: #f1f5f8;
+        background: var(--card);
+        border: 1px solid var(--line);
         border-radius: 14px;
-        padding: 18px 20px;
+        overflow: hidden;
+        padding: 0 20px 18px;
         margin-bottom: 16px;
       }
       .card--bricks {
-        --restaurant: #2563a8;
-        --restaurant-wash: #eaf2fc;
+        --restaurant: #334e68;
+        --restaurant-wash: #f1f5f8;
       }
       .card--eatery {
-        --restaurant: #008f9c;
-        --restaurant-wash: #e5f8f8;
+        --restaurant: #176b73;
+        --restaurant-wash: #edf6f6;
       }
       .card--kantin {
-        --restaurant: #8650a5;
-        --restaurant-wash: #f3eaf8;
+        --restaurant: #68456f;
+        --restaurant-wash: #f5f0f6;
       }
-      .card h2 {
+      .restaurant-head {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin: 0 -20px;
+        padding: 16px 20px 14px;
+        background: linear-gradient(105deg, var(--restaurant-wash), var(--card));
+        border-top: 4px solid var(--restaurant);
+        border-bottom: 1px solid var(--line);
+      }
+      .restaurant-mark {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 auto;
+        background: var(--restaurant);
+        color: white;
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        line-height: 1;
+        border-radius: 8px;
+      }
+      .card--eatery .restaurant-mark {
+        border-radius: 50%;
+      }
+      .card--kantin .restaurant-mark {
+        border-radius: 3px;
+        transform: rotate(45deg);
+      }
+      .card--kantin .restaurant-mark span {
+        transform: rotate(-45deg);
+      }
+      .restaurant-head h2 {
         display: flex;
         align-items: center;
         font-family: "Fraunces", serif;
         font-size: 19px;
-        margin: 0 0 2px;
+        margin: 0;
       }
-      .card h2::before {
-        content: "";
-        width: 9px;
-        height: 9px;
-        flex: 0 0 auto;
-        margin-right: 8px;
-        background: var(--restaurant);
-        border-radius: 50%;
+      .restaurant-head .src {
+        display: block;
+        margin-top: 2px;
       }
       .card .src {
         font-size: 12px;
@@ -301,8 +329,11 @@
         const el = document.createElement("div");
         el.className = `card card--${id}`;
         el.innerHTML = `
-    <h2>${r.name}</h2>
-    <a class="src" href="${r.page}" target="_blank" rel="noopener">${r.page}</a>
+    <div class="restaurant-head">
+      <span class="restaurant-mark"><span>${id[0].toUpperCase()}</span></span>
+      <div><h2>${r.name}</h2>
+      <a class="src" href="${r.page}" target="_blank" rel="noopener">${r.page}</a></div>
+    </div>
     <div class="today-block"></div>
   `;
 
