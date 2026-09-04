@@ -236,7 +236,22 @@
       }
 
       function dishesHtml(dishes) {
-        return dishes
+        const normalized = [];
+        for (let i = 0; i < dishes.length; i++) {
+          const label = dishes[i];
+          const next = dishes[i + 1];
+          const price = next?.desc?.match(
+            /^(\d{2,3}:-\s*(?:ink\.?\s*Kaffe\.?)?)(?:\s+(.+))$/,
+          );
+          if (!label.label && !label.price && label.desc && price) {
+            normalized.push({ label: label.desc, price: price[1], desc: price[2] });
+            i++;
+          } else {
+            normalized.push(label);
+          }
+        }
+
+        return normalized
           .map((d) => {
             const storedDish = d.price?.match(
               /^(\d{2,3}:-\s*(?:ink\.?\s*Kaffe\.?)?)\s+(.+)$/,
