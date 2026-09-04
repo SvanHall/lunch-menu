@@ -238,13 +238,19 @@
       function dishesHtml(dishes) {
         return dishes
           .map((d) => {
-            const goldClass = isPancakeThursday(d.desc) ? " dish-pancake" : "";
-            if (!d.label)
-              return `<p class="dish-plain${goldClass}">${d.desc}</p>`;
+            const storedDish = d.price?.match(
+              /^(\d{2,3}:-\s*(?:ink\.?\s*Kaffe\.?)?)\s+(.+)$/,
+            );
+            const dish = !d.desc && storedDish
+              ? { ...d, price: storedDish[1], desc: storedDish[2] }
+              : d;
+            const goldClass = isPancakeThursday(dish.desc) ? " dish-pancake" : "";
+            if (!dish.label)
+              return `<p class="dish-plain${goldClass}">${dish.desc}</p>`;
             return `
       <div class="dish${goldClass}">
-        <div class="dish-head"><span>${d.label}</span><span class="price">${d.price}</span></div>
-        ${d.desc ? `<p class="dish-desc">${d.desc}</p>` : ""}
+        <div class="dish-head"><span>${dish.label}</span><span class="price">${dish.price}</span></div>
+        ${dish.desc ? `<p class="dish-desc">${dish.desc}</p>` : ""}
       </div>`;
           })
           .join("");

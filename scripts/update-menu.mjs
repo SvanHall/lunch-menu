@@ -110,11 +110,25 @@ function splitDishes(text) {
 
   // Label + price (+ optional "inkl. kaffe") + optional description on same line
   const priceHead =
-    /^([A-ZÅÄÖ][\wåäöÅÄÖ /-]{1,24})\s+(\d{2,3}:-(?:\s*ink\.?\s*Kaffe\.?)?)\s*(.*)$/;
+    /^([A-ZÅÄÖ][\wåäöÅÄÖ /-]*?)\s+(\d{2,3}:-\s*(?:ink\.?\s*Kaffe\.?)?)(?:\s+(.*))?$/;
+  const priceOnly = /^(\d{2,3}:-\s*(?:ink\.?\s*Kaffe\.?)?)(?:\s+(.*))?$/;
 
   const dishes = [];
   for (let i = 0; i < blocks.length; i++) {
     const m = blocks[i].match(priceHead);
+    const nextPrice = blocks[i + 1]?.match(priceOnly);
+    if (!m && nextPrice && /^[A-ZÅÄÖ][\wåäöÅÄÖ /-]*$/.test(blocks[i])) {
+      const label = blocks[i];
+      let desc = nextPrice[2]?.trim() || "";
+      const following = blocks[i + 2];
+      if (!desc && following && !priceHead.test(following) && !priceOnly.test(following)) {
+        desc = following;
+        i++;
+      }
+      dishes.push({ label, price: nextPrice[1], desc });
+      i++;
+      continue;
+    }
     if (!m) {
       // No label+price match → treat as a plain block
       dishes.push({ label: null, price: null, desc: blocks[i] });
