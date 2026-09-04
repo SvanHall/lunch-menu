@@ -77,16 +77,42 @@
         padding: 16px 16px 60px;
       }
       .card {
-        background: var(--card);
-        border: 1px solid var(--line);
+        --restaurant: var(--sage);
+        --restaurant-wash: #f4f8f3;
+        background: linear-gradient(180deg, var(--restaurant-wash) 0%, var(--card) 42%);
+        border: 1px solid color-mix(in srgb, var(--restaurant) 28%, var(--line));
+        border-top: 4px solid var(--restaurant);
         border-radius: 14px;
         padding: 18px 20px;
         margin-bottom: 16px;
       }
+      .card--bricks {
+        --restaurant: #2563a8;
+        --restaurant-wash: #eaf2fc;
+      }
+      .card--eatery {
+        --restaurant: #008f9c;
+        --restaurant-wash: #e5f8f8;
+      }
+      .card--kantin {
+        --restaurant: #8650a5;
+        --restaurant-wash: #f3eaf8;
+      }
       .card h2 {
+        display: flex;
+        align-items: center;
         font-family: "Fraunces", serif;
         font-size: 19px;
         margin: 0 0 2px;
+      }
+      .card h2::before {
+        content: "";
+        width: 9px;
+        height: 9px;
+        flex: 0 0 auto;
+        margin-right: 8px;
+        background: var(--restaurant);
+        border-radius: 50%;
       }
       .card .src {
         font-size: 12px;
@@ -271,9 +297,9 @@
           .join("");
       }
 
-      function renderCard(r) {
+      function renderCard(r, id) {
         const el = document.createElement("div");
-        el.className = "card";
+        el.className = `card card--${id}`;
         el.innerHTML = `
     <h2>${r.name}</h2>
     <a class="src" href="${r.page}" target="_blank" rel="noopener">${r.page}</a>
@@ -349,7 +375,7 @@
         container.innerHTML = "";
         RESTAURANT_ORDER.forEach((id) => {
           const r = data.restaurants[id];
-          if (r) container.appendChild(renderCard(r));
+          if (r) container.appendChild(renderCard(r, id));
         });
       }
 
