@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T08:01:57.156Z",
+  "generatedAt": "2026-09-07T13:26:15.300Z",
   "restaurants": {
     "bricks": {
       "name": "Bricks Eatery",
@@ -106,7 +106,7 @@
           }
         ]
       },
-      "updatedAt": "2026-09-07T08:01:55.716Z"
+      "updatedAt": "2026-09-07T13:26:13.842Z"
     },
     "eatery": {
       "name": "Eatery Lund",
@@ -208,7 +208,7 @@
           }
         ]
       },
-      "updatedAt": "2026-09-07T08:01:56.558Z"
+      "updatedAt": "2026-09-07T13:26:14.685Z"
     },
     "kantin": {
       "name": "Kantin Lund",
@@ -250,7 +250,7 @@
           }
         ]
       },
-      "updatedAt": "2026-09-07T08:01:57.156Z"
+      "updatedAt": "2026-09-07T13:26:15.300Z"
     }
   }
 }
