@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T13:26:15.300Z",
+  "generatedAt": "2026-09-14T13:49:50.093Z",
   "restaurants": {
     "bricks": {
       "name": "Bricks Eatery",
@@ -116,34 +116,34 @@
           {
             "label": null,
             "price": null,
-            "desc": "Kyckling yakiniku med sesam, picklad lök och gul morot, jasminris med krispig lök"
+            "desc": "Nattbakad karré med salsa verde, skysås och fänkålsrostad potatis"
           },
           {
             "label": null,
             "price": null,
-            "desc": "Masala sej i kokos och gulcurrysås, mangochutney, rostad pumpa och basmatiris"
+            "desc": "Pepparrot och dillbakad kungsfisk med, brynt smör med hasselnöt och citron, kokt potatis med gräslök, citronmarinerad gul morot"
           },
           {
             "label": null,
             "price": null,
-            "desc": "Halloumi stroganoff med rostad paprika, saltgurka och ris, gräddfil"
+            "desc": "Yakiniku på svamp och tofu, picklad fänkål, sesamris och krispig lök"
           }
         ],
         "Tisdag": [
           {
             "label": null,
             "price": null,
-            "desc": "Biff à la Lindström, rödvinssås, örtsmör, saltgurka & rostad potatis"
+            "desc": "Grekisk färsbiff “biffteki” med salladsost, persilja, mejram och vitlök, klyftpotatis och tzatziki"
           },
           {
             "label": null,
             "price": null,
-            "desc": "Bakad kungsfisk med skaldjursvelouté, picklad blomkål, potatismos och krispiga rotfrukter"
+            "desc": "Ugnsbakad sejfilé med krämig tomat och basilikasås, oliv och chilitopping, potatismos"
           },
           {
             "label": null,
             "price": null,
-            "desc": "Gnocchi med salvia, citron och tomatpesto, vitlöksstekt svamp, ruccola och lagrad ost"
+            "desc": "Het linsgryta med rostade rotfrukter samt ajvarkräm"
           },
           {
             "label": null,
@@ -155,34 +155,34 @@
           {
             "label": null,
             "price": null,
-            "desc": "Stekt fläsk med löksås, kokt potatis med persilja och smör"
+            "desc": "Skånsk kalops med inlagda rödbetor och kokt potatis med örtolja"
           },
           {
             "label": null,
             "price": null,
-            "desc": "Fisk- och skaldjursgryta, räkor, rotfrukter, aioli & krutonger"
+            "desc": "Stekt kummel med gröna ärtor, mynta, tartarsås & koktpotatis"
           },
           {
             "label": null,
             "price": null,
-            "desc": "Nudlar wokade med broccoli, tofu, soja och sesam, krispig lök och cashewnötter"
+            "desc": "Chili sin carne med rostad paprika, picklad chili och rödlök, gräddfil och basmatiris med örter"
           }
         ],
         "Torsdag": [
           {
             "label": null,
             "price": null,
-            "desc": "Nattbakat högrev med tomat, vin & timjan, rostade betor, smålök & potatismos med rostad vitlök"
+            "desc": "Citron, vitlök och rosmarinbakad kycklingfilé med romesco, skysås och potatismos"
           },
           {
             "label": null,
             "price": null,
-            "desc": "Sesamstekt kungsfisk med bakad pak choy, asiatisk salsa verde, jasminris med chili och sesam"
+            "desc": "Bakad sej med kokos och jordnötssås, mangosallad, krispig lök, ris"
           },
           {
             "label": null,
             "price": null,
-            "desc": "Morot och pumpasoppa med picklad pumpa, curry och mangoripple, smörgåskrasse"
+            "desc": "Svampsoppa med rostad rotselleri, timjan och vitlökskräm"
           },
           {
             "label": null,
@@ -194,21 +194,21 @@
           {
             "label": null,
             "price": null,
-            "desc": "Japansk schnitzel ”Tonkatsu”, sesamdressad vitkål, syrlig majonnäs & jasminris"
+            "desc": "Kycklingschnitzel med tryffelbearnaise, rostad potatis och lökstekta gröna bönor"
           },
           {
             "label": null,
             "price": null,
-            "desc": "Bakad sej med smörad tomatsås, rosmarinbakad palsternacka, citron, dill och fänkålstopping"
+            "desc": "Citron och fänkålsbakad tilapia med rom och gräslökssås, potatismos och blomkålssallad"
           },
           {
             "label": null,
             "price": null,
-            "desc": "Pizza bianco med getost, ruccola, honung och bakade tomater"
+            "desc": "Tortelloni med ricotta och spenat, citron och ört ricotta, rostad paprika, rostad tomatsås"
           }
         ]
       },
-      "updatedAt": "2026-09-07T13:26:14.685Z"
+      "updatedAt": "2026-09-14T13:49:49.480Z"
     },
     "kantin": {
       "name": "Kantin Lund",
@@ -218,39 +218,39 @@
           {
             "label": null,
             "price": null,
-            "desc": "Spidersteak – sås romesco – rostad spetskål – bakad tomat – sky – rostad potatis – mandel – ruccola"
+            "desc": "Yakiniku – entrecôte – ris – gochujangmajo – picklad kål – broccoli – böngroddar – koriander"
           }
         ],
         "Tisdag": [
           {
             "label": null,
             "price": null,
-            "desc": "Pankofriterat kycklinglår – chilistuvad majs – jalapeño – syrad kål – krispig tortilla – potatis"
+            "desc": "Hangersteak – chimichurri – palsternacka – sky – pickles – rostad lök – potatis"
           }
         ],
         "Onsdag": [
           {
             "label": null,
             "price": null,
-            "desc": "Flankstek – pepparsås – rostad svamp – skockachips – saltgurka – potatis"
+            "desc": "Nattbakad fläsksida – gul morotspuré – chilirostad buntmorot – mâche – krispig kål – sky – potatis"
           }
         ],
         "Torsdag": [
           {
             "label": null,
             "price": null,
-            "desc": "Råbiffstorsdag – Oxtartar – kaprismajo – rostade betor – senapsfrön – äggula – fröer – krasse"
+            "desc": "Råbiffstorsdag – Oxtartar – gul chilimajo – krispig sötpotatis – bakad tomat – syrad lök – machè"
           }
         ],
         "Fredag": [
           {
             "label": null,
             "price": null,
-            "desc": "Confiterat anklår – tamarindsky – paksoi – kål – potatis – papadums – ört"
+            "desc": "Nattbakad oxkind – pumpapuré – picklad chili – fröer – chilisky – potatis"
           }
         ]
       },
-      "updatedAt": "2026-09-07T13:26:15.300Z"
+      "updatedAt": "2026-09-14T13:49:50.093Z"
     }
   }
 }
