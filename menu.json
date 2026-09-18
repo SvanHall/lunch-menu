@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-14T13:49:50.093Z",
+  "generatedAt": "2026-09-18T06:25:11.098Z",
   "restaurants": {
     "bricks": {
       "name": "Bricks Eatery",
@@ -9,73 +9,73 @@
           {
             "label": "Green",
             "price": "115:- ink. Kaffe",
-            "desc": "Blomkålssoppa med vitlöksbröd, färskost, purjolök, krasse och liten dessert"
+            "desc": "Jordärtskockssoppa med picklad ostronskivling, rökt smetana, fänkål och ostquesadillas"
           },
           {
             "label": "Local",
             "price": "115:- ink. Kaffe",
-            "desc": "Pytt i panna med rödbetor, stekt ägg, worchestersås och persilja"
+            "desc": "Kålpudding med potatis, lingon, gräddsås, persilja och krispig grönkål"
           },
           {
             "label": "World wide",
             "price": "115:- ink. Kaffe",
-            "desc": "Grön thaicurry med kyckling, kokosmjölk, thaibasilika, grönsaker och ris"
+            "desc": "Massaman Curry med kyckling, potatis, jordnötter, ris och limeblad"
           }
         ],
         "Tisdag": [
           {
             "label": "Green",
             "price": "115:- ink. Kaffe",
-            "desc": "Grönsakslasagne med bechamelsås, soltorkad tomat, basilika och lagrad ost"
+            "desc": "Indisk “alo gobi” gryta med ris, blomkål, kikärtor, potatis, grädde och naanbröd"
           },
           {
-            "label": "World Wide",
+            "label": "Local",
             "price": "115:- ink. Kaffe",
-            "desc": "Nattbakad fläsksida med teriyakisås, stekt ris, krämigt ägg, jordnötter och picklad rättika"
+            "desc": "Kryddstekt fläskytterfilé med purjolökspotatis, kryddsmör, skysås, ärtor, brytbönor och rödlök"
           },
           {
             "label": "Pizza",
             "price": "115:- ink. Kaffe",
-            "desc": "Mozzarella, tomatsås, burrata, salami och chiliolja"
+            "desc": "Mozzarella, tomatsås, kyckling, pesto, soltorkad tomat och ruccola"
           }
         ],
         "Onsdag": [
           {
             "label": "Green",
             "price": "115:- ink. Kaffe",
-            "desc": "Kikärtscurry med ris, garam masala, papadums, yoghurt, spenat och koriander"
+            "desc": "Vegetariska vårrullar med stekt ris, sweet chilisås, asiatisk råkostsallad och bakat ägg"
           },
           {
             "label": "Local",
             "price": "115:- ink. Kaffe",
-            "desc": "Baconlindad köttfärslimpa med svampsås, svartvinbärsgele, potatis, gurka och rotselleri"
+            "desc": "Kyckling med spenat/ricotta tortellini, citrongrädde, lagrad ost och ruccola"
           },
           {
             "label": "World wide",
             "price": "115:- ink. Kaffe",
-            "desc": "Dagens fångst med skaldjurssås, potatismos, gröna ärtor, dill, fänkål och citronpicklad blomkål"
+            "desc": "Lax Poke Bowl med kimchi, gurka, sesam, ingefära, wakame, chilimajonnäs och jordnötter"
           },
           {
             "label": "Pizza",
             "price": "115:- ink. Kaffe",
-            "desc": "Mozzarella, tomatsås, burrata, salami och chiliolja"
+            "desc": "Mozzarella, tomatsås, kyckling, pesto, soltorkad tomat och ruccola"
           }
         ],
         "Torsdag": [
           {
             "label": "Green",
             "price": "115:- ink. Kaffe",
-            "desc": "Friterad risottobiff med tryffelmajonnäs, romansallad, zucchini och pestomarinerade champinjoner"
+            "desc": "Friterad krispig getost med bulgur, karamelliserade valnötter, rödbeta, frissesallad, citron och honung"
           },
           {
             "label": "Local",
             "price": "115:- ink. Kaffe",
-            "desc": "Chili på högrev/nötfärs, paprika, lök, bönor, ris nachos, picklad lök och gräddfil"
+            "desc": "Köttbullar med potatismos, gräddsås, lingon, pressgurka och kruspersilja"
           },
           {
             "label": "Pizza",
             "price": "115:- ink. Kaffe",
-            "desc": "Mozzarella, tomatsås, burrata, salami och chiliolja"
+            "desc": "Mozzarella, tomatsås, kyckling, pesto, soltorkad tomat och ruccola"
           },
           {
             "label": null,
@@ -92,21 +92,21 @@
           {
             "label": "Green",
             "price": "115:- ink. Kaffe",
-            "desc": "Grönsaksbiff, pommes frites, chilimajonnäs och bakad spetskål"
+            "desc": "Grönsaksomelett med örtfärskost, picklade kantareller, krispig sallad och rostade fröer"
           },
           {
             "label": "Local",
             "price": "115:- ink. Kaffe",
-            "desc": "Bakad potatis med skagenröra, ägg, fänkål, dill och citron"
+            "desc": "Philly cheese sandwich med nattbakat högrev, karamelliserad lök, tryffelmajonnäs, ost och timjanrostad potatis"
           },
           {
             "label": "World wide",
             "price": "115:- ink. Kaffe",
-            "desc": "BBQ- kycklingklubbfile med gräddstuvad majs, timjanpotatis, spetskål, kruspersilja, jalapeno och gurka"
+            "desc": "Pekingsoppa med kyckling, bakat ägg, bambu, chili och räkchips"
           }
         ]
       },
-      "updatedAt": "2026-09-07T13:26:13.842Z"
+      "updatedAt": "2026-09-18T06:25:09.013Z"
     },
     "eatery": {
       "name": "Eatery Lund",
@@ -208,7 +208,7 @@
           }
         ]
       },
-      "updatedAt": "2026-09-14T13:49:49.480Z"
+      "updatedAt": "2026-09-18T06:25:10.193Z"
     },
     "kantin": {
       "name": "Kantin Lund",
@@ -250,7 +250,7 @@
           }
         ]
       },
-      "updatedAt": "2026-09-14T13:49:50.093Z"
+      "updatedAt": "2026-09-18T06:25:11.098Z"
     }
   }
 }
