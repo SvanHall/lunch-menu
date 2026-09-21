@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-21T09:00:08.774Z",
+  "generatedAt": "2026-09-21T09:02:11.747Z",
   "restaurants": {
     "bricks": {
       "name": "Bricks Eatery",
@@ -106,7 +106,7 @@
           }
         ]
       },
-      "updatedAt": "2026-09-21T09:00:07.349Z"
+      "updatedAt": "2026-09-21T09:02:10.236Z"
     },
     "eatery": {
       "name": "Eatery Lund",
@@ -250,7 +250,7 @@
           }
         ]
       },
-      "updatedAt": "2026-09-21T09:00:08.774Z"
+      "updatedAt": "2026-09-21T09:02:11.747Z"
     }
   }
 }
